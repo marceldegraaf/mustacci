@@ -4,7 +4,6 @@ require 'json'
 require 'yaml'
 require 'zmq'
 require 'pty'
-require 'websocket_client'
 
 QUEUE = "tcp://127.0.0.1:9000"
 CONFIG = YAML.load(File.open("repositories.yml"))
@@ -34,17 +33,15 @@ context = ZMQ::Context.new(1)
 inbound = context.socket(ZMQ::UPSTREAM)
 inbound.bind QUEUE
 
-WebSocketClient.create("ws://localhost:10081/") do |client|
-  loop do
-    data = inbound.recv
-    puts "Received data here!"
-    begin
-      run data, client
-    rescue Exception => error
-      puts error.class
-      puts error
-      puts *error.backtrace
-      exit
-    end
+loop do
+  data = inbound.recv
+  puts "Received data here!"
+  begin
+    run data, client
+  rescue Exception => error
+    puts error.class
+    puts error
+    puts *error.backtrace
+    exit
   end
 end
