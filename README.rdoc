@@ -16,6 +16,10 @@ Install propers gems:
 
   bundle
 
-Do your thang:
+To start the Github watcher:
 
-  ./script/server
+  ./script/github
+
+To start a worker:
+
+  ./script/worker
