@@ -15,3 +15,7 @@ Install ZeroMQ:
 Install propers gems:
 
   bundle
+
+Do your thang:
+
+  ./script/server
