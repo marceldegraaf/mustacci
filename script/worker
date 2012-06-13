@@ -1,8 +1,31 @@
 #!/usr/bin/env ruby
 
+require 'json'
+require 'yaml'
 require 'zmq'
+require 'pty'
 
 QUEUE = "tcp://127.0.0.1:9000"
+CONFIG = YAML.load(File.open("repositories.yml"))
+
+
+def run(data, client)
+  payload = JSON.parse(data)
+  repo = payload["repository"]["url"]
+
+  puts "[#{Time.now}] Building #{repo.inspect}"
+
+  path = CONFIG[repo]["path"]
+
+  PTY.spawn "./script/runner #{repo} #{path}" do |read, write, pid|
+    read.each_char do |char|
+      # TODO send this to a websocket
+      print char
+    end
+  end
+
+end
+
 
 puts "Listening for builds on #{QUEUE}"
 
@@ -12,5 +35,13 @@ inbound.bind QUEUE
 
 loop do
   data = inbound.recv
-  puts "[#{Time.now}] #{data.inspect}"
+  puts "Received data here!"
+  begin
+    run data, client
+  rescue Exception => error
+    puts error.class
+    puts error
+    puts *error.backtrace
+    exit
+  end
 end

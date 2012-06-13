@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+
+puts "Received data there"
+
+repo = ARGV[-2]
+path = ARGV[-1]
+
+class BuildFailed < RuntimeError
+end
+
+def exe(command)
+  system command
+  raise BuildFailed, "Command failed: #{command.inspect}" if $?.to_i != 0
+end
+
+def run(repo, path)
+
+  unless File.exist?(path)
+    exe "git clone #{repo} #{path}"
+  end
+
+  Dir.chdir path do
+
+    exe "git clean -fdx"
+    exe "git pull"
+
+    if File.exist?(".mustacci")
+      puts "Running .mustacci file"
+      exe "./.mustacci"
+    elsif File.exist?("Gemfile")
+      puts "Gemfile found, installing rake with bundler"
+      exe "gem install bundler"
+      exe "bundle install"
+      exe "bundle exec rake"
+    else
+      puts "Just running rake"
+      exe "rake"
+    end
+
+  end
+end
+
+begin
+  run(repo, path)
+rescue BuildFailed => error
+  STDOUT.puts "\e[31m#{error}\e[0m"
+end
