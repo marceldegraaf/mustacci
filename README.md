@@ -1,25 +1,26 @@
-= Mustacci
+# Mustacci
 
 Mustacci is a simple, biased continuous integration server for Rails applications.
 
 Requirements:
+
 * ruby 1.9.3-p194
 * ZeroMQ
 
-== Development installation OSX
+## Development installation OSX
 
 Install ZeroMQ:
 
-  brew install zmq
+    brew install zmq
 
 Install propers gems:
 
-  bundle
+    bundle
 
 To start the Github watcher:
 
-  ./script/github
+    ./script/github
 
 To start a worker:
 
-  ./script/worker
+    ./script/worker
