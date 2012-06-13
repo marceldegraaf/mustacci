@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+require 'sinatra'
+require 'zmq'
+
+QUEUE = "tcp://127.0.0.1:9000"
+
+puts "** Will send to build queue at #{QUEUE}"
+
+context = ZMQ::Context.new(1)
+outbound = context.socket(ZMQ::DOWNSTREAM)
+outbound.connect QUEUE
+
+post '/github' do
+  if params[:payload]
+    outbound.send params[:payload]
+    200
+  else
+    400
+  end
+end

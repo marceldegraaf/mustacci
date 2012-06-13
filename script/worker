@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require 'zmq'
+
+QUEUE = "tcp://127.0.0.1:9000"
+
+puts "Listening for builds on #{QUEUE}"
+
+context = ZMQ::Context.new(1)
+inbound = context.socket(ZMQ::UPSTREAM)
+inbound.bind QUEUE
+
+loop do
+  data = inbound.recv
+  puts "[#{Time.now}] #{data.inspect}"
+end
