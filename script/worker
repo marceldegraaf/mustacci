@@ -8,22 +8,34 @@ require 'pty'
 QUEUE = "tcp://127.0.0.1:9000"
 CONFIG = YAML.load(File.open("repositories.yml"))
 
+def log(message)
+  $stdout.puts "\e[33m[#{Time.now}] #{message}\e[0m"
+end
+
+class SkipBuild < RuntimeError
+end
+
 def run(data)
   payload = JSON.parse(data)
 
-  repo = payload["repository"]["url"]
-  sha  = payload["after"]
+  skip = Proc.new { |key| raise SkipBuild, "Missing key: #{key}" }
 
-  puts "[#{Time.now}] Building #{repo.inspect}"
+  repo = payload.fetch "repository", &skip
+  url  = repo.fetch "url", &skip
+  sha  = payload.fetch "after", &skip
 
-  path = CONFIG[repo]["path"]
+  log "Building #{url.inspect}"
 
-  PTY.spawn "./script/runner #{sha} #{repo} #{path}" do |read, write, pid|
+  path = CONFIG[url]["path"]
+
+  PTY.spawn "./script/runner #{sha} #{url} #{path}" do |read, write, pid|
     read.each_char do |char|
       # TODO send this to a websocket
       print char
     end
   end
+
+  log "Done with this build."
 
 end
 
@@ -35,19 +47,22 @@ inbound.bind QUEUE
 
 loop do
   trap('INT') do
-    puts 'Exit signal received, shutting down...'
+    log 'Exit signal received, shutting down...'
     inbound.close
     exit
   end
 
   data = inbound.recv
-  puts "Received data here!"
   begin
     run data
+  rescue SkipBuild => error
+    log "Skipping build because invalid payload. #{error}"
   rescue Exception => error
-    puts error.class
-    puts error
-    puts *error.backtrace
-    exit
+    $stderr.puts "\e[31m[#{Time.now}] #{error.class}: #{error}\e[0m"
+    error.backtrace.each do |line|
+      $stderr.puts "      \e[30m#{line}\e[0m"
+    end
+    inbound.close
+    exit 1
   end
 end

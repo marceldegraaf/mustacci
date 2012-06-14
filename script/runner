@@ -1,22 +1,24 @@
 #!/usr/bin/env ruby
 
-puts "Received data there"
-
-path, repo, sha, *_ = *ARGV.reverse
+path, url, sha, *_ = *ARGV.reverse
 
 class BuildFailed < RuntimeError
 end
 
+def log(message)
+  $stderr.puts "\e[33m[#{Time.now}] #{message}\e[0m"
+end
+
 def exe(command)
-  puts "\e[33m[#{Time.now}] #{command}\e[0m"
+  log command
   system command
   raise BuildFailed, "Command failed: #{command.inspect}" if $?.to_i != 0
 end
 
-def run(path, repo, sha)
+def run(path, url, sha)
 
   unless File.exist?(path)
-    exe "git clone #{repo} #{path}"
+    exe "git clone #{url} #{path}"
   end
 
   Dir.chdir path do
@@ -26,15 +28,12 @@ def run(path, repo, sha)
     exe "git checkout #{sha} -q"
 
     if File.exist?(".mustacci")
-      puts "Running .mustacci file"
       exe "./.mustacci"
     elsif File.exist?("Gemfile")
-      puts "Gemfile found, installing rake with bundler"
       exe "gem install bundler"
       exe "bundle install"
       exe "bundle exec rake"
     else
-      puts "Just running rake"
       exe "rake"
     end
 
@@ -45,9 +44,9 @@ def run(path, repo, sha)
 end
 
 begin
-  run(path, repo, sha)
+  run(path, url, sha)
 rescue BuildFailed => error
-  STDOUT.puts "\e[31m#{error}\e[0m"
+  $stderr.puts "\e[31m#{error}\e[0m"
   Dir.chdir path do
     exe "git notes --ref=mustacci add -fm 'Build failed (#{Time.now})' #{sha}"
     exe "git push origin refs/notes/mustacci"
