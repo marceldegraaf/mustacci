@@ -1,0 +1,6 @@
+mustacci:
+  campfire:
+    account: "campfire_subdomain"
+    room_id: "room_id"
+    token: "secret_token"
+    ssl: true
