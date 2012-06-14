@@ -9,7 +9,7 @@ QUEUE = "tcp://127.0.0.1:9000"
 CONFIG = YAML.load(File.open("repositories.yml"))
 
 
-def run(data, client)
+def run(data)
   payload = JSON.parse(data)
   repo = payload["repository"]["url"]
 
@@ -37,7 +37,7 @@ loop do
   data = inbound.recv
   puts "Received data here!"
   begin
-    run data, client
+    run data
   rescue Exception => error
     puts error.class
     puts error
