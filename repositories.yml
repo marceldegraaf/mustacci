@@ -1,2 +1,2 @@
-https://github.com/marceldegraaf/mustacci.git:
+git@github.com:marceldegraaf/mustacci.git:
   path: "test/mustacci-workspace"

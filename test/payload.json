@@ -1,7 +1,7 @@
 {
   "before": "5aef35982fb2d34e9d9d4502f6ede1072793222d",
   "repository": {
-    "url": "https://github.com/marceldegraaf/mustacci.git",
+    "url": "git@github.com:marceldegraaf/mustacci.git",
     "name": "github",
     "description": "You're lookin' at it.",
     "watchers": 5,
@@ -35,6 +35,6 @@
       "timestamp": "2008-02-15T14:36:34-08:00"
     }
   ],
-  "after": "de8251ff97ee194a289832576287d6f8ad74e3d0",
+  "after": "b3c05d9daf39d67ece011bb03b53dc4ddbebf0e0",
   "ref": "refs/heads/master"
 }

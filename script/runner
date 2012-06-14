@@ -2,18 +2,18 @@
 
 puts "Received data there"
 
-repo = ARGV[-2]
-path = ARGV[-1]
+path, repo, sha, *_ = *ARGV.reverse
 
 class BuildFailed < RuntimeError
 end
 
 def exe(command)
+  puts "\e[33m[#{Time.now}] #{command}\e[0m"
   system command
   raise BuildFailed, "Command failed: #{command.inspect}" if $?.to_i != 0
 end
 
-def run(repo, path)
+def run(path, repo, sha)
 
   unless File.exist?(path)
     exe "git clone #{repo} #{path}"
@@ -22,7 +22,8 @@ def run(repo, path)
   Dir.chdir path do
 
     exe "git clean -fdx"
-    exe "git pull"
+    exe "git fetch"
+    exe "git checkout #{sha} -q"
 
     if File.exist?(".mustacci")
       puts "Running .mustacci file"
@@ -37,11 +38,18 @@ def run(repo, path)
       exe "rake"
     end
 
+    exe "git notes --ref=mustacci add -m 'Build successful (#{Time.now})' #{sha}"
+    exe "git push origin refs/notes/mustacci"
+
   end
 end
 
 begin
-  run(repo, path)
+  run(path, repo, sha)
 rescue BuildFailed => error
   STDOUT.puts "\e[31m#{error}\e[0m"
+  Dir.chdir path do
+    exe "git notes --ref=mustacci add -fm 'Build failed (#{Time.now})' #{sha}"
+    exe "git push origin refs/notes/mustacci"
+  end
 end

@@ -10,13 +10,15 @@ CONFIG = YAML.load(File.open("repositories.yml"))
 
 def run(data)
   payload = JSON.parse(data)
+
   repo = payload["repository"]["url"]
+  sha  = payload["after"]
 
   puts "[#{Time.now}] Building #{repo.inspect}"
 
   path = CONFIG[repo]["path"]
 
-  PTY.spawn "./script/runner #{repo} #{path}" do |read, write, pid|
+  PTY.spawn "./script/runner #{sha} #{repo} #{path}" do |read, write, pid|
     read.each_char do |char|
       # TODO send this to a websocket
       print char
