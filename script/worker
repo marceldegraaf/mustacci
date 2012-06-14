@@ -1,34 +1,24 @@
 #!/usr/bin/env ruby
 
-require 'json'
-require 'yaml'
 require 'zmq'
 require 'pty'
+require 'digest'
+require 'fileutils'
 
 QUEUE = "tcp://127.0.0.1:9000"
-CONFIG = YAML.load(File.open("repositories.yml"))
 
 def log(message)
   $stdout.puts "\e[33m[#{Time.now}] #{message}\e[0m"
 end
 
-class SkipBuild < RuntimeError
-end
-
 def run(data)
-  payload = JSON.parse(data)
+  filename = "tmp/payloads/#{Digest::MD5.hexdigest(data)}.json"
+  FileUtils.mkdir_p File.dirname(filename)
+  File.open(filename, 'w:utf-8') { |f| f << data }
 
-  skip = Proc.new { |key| raise SkipBuild, "Missing key: #{key}" }
+  log "Starting build."
 
-  repo = payload.fetch "repository", &skip
-  url  = repo.fetch "url", &skip
-  sha  = payload.fetch "after", &skip
-
-  log "Building #{url.inspect}"
-
-  path = CONFIG[url]["path"]
-
-  PTY.spawn "./script/runner #{sha} #{url} #{path}" do |read, write, pid|
+  PTY.spawn "./script/runner #{filename}" do |read, write, pid|
     read.each_char do |char|
       # TODO send this to a websocket
       print char
@@ -55,8 +45,6 @@ loop do
   data = inbound.recv
   begin
     run data
-  rescue SkipBuild => error
-    log "Skipping build because invalid payload. #{error}"
   rescue Exception => error
     $stderr.puts "\e[31m[#{Time.now}] #{error.class}: #{error}\e[0m"
     error.backtrace.each do |line|

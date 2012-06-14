@@ -25,8 +25,6 @@ To start a worker:
 
     ./script/worker
 
-Configuration is in `repositories.yml`
-
 Then you can send a dummy post receive hook:
 
     curl -d "payload=`cat test/payload.json`" http://localhost:4567/github
