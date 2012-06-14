@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+message = <<-DOC
+
+Your build FAILED! Now it's up to you to determine what should be done.
+
+Replace the contents of this file with what you want to happen after failed builds.
+
+Suggestions:
+
+* Send an email to you and your team members
+* Send a message to your Campfire room
+* Raise alarms in the office
+* Order bitterballen in the name of the person who failed the build
+
+DOC
+
+puts message

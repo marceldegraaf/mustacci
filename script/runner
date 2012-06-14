@@ -15,6 +15,18 @@ def exe(command)
   raise BuildFailed, "Command failed: #{command.inspect}" if $?.to_i != 0
 end
 
+def time
+  start = Time.now
+  yield
+ensure
+  $duration = Time.now - start
+end
+
+def duration
+  duration = "%.3f seconds" % $duration
+  "(#{Time.now}, duration: #{duration})"
+end
+
 def run(path, url, sha)
 
   unless File.exist?(path)
@@ -23,32 +35,44 @@ def run(path, url, sha)
 
   Dir.chdir path do
 
-    exe "git clean -fdx"
-    exe "git fetch"
-    exe "git checkout #{sha} -q"
+    time {
+      exe "git clean -fdx"
+      exe "git fetch"
+      exe "git checkout -q #{sha}"
 
-    if File.exist?(".mustacci")
-      exe "./.mustacci"
-    elsif File.exist?("Gemfile")
-      exe "gem install bundler"
-      exe "bundle install"
-      exe "bundle exec rake"
-    else
-      exe "rake"
-    end
+      if File.exist?(".mustacci")
+        exe "./.mustacci"
+      elsif File.exist?("Gemfile")
+        exe "gem install bundler"
+        exe "bundle install"
+        exe "bundle exec rake"
+      else
+        exe "rake"
+      end
+    }
 
-    exe "git notes --ref=mustacci add -m 'Build successful (#{Time.now})' #{sha}"
-    exe "git push origin refs/notes/mustacci"
+    exe "git notes --ref=Mustacci add -fm 'Build successful! #{duration}' #{sha}"
+    exe "git push origin refs/notes/Mustacci"
 
   end
+
+  exe "./script/success #{ARGV.join(" ")}"
+
 end
 
 begin
-  run(path, url, sha)
+  run path, url, sha
 rescue BuildFailed => error
-  $stderr.puts "\e[31m#{error}\e[0m"
-  Dir.chdir path do
-    exe "git notes --ref=mustacci add -fm 'Build failed (#{Time.now})' #{sha}"
-    exe "git push origin refs/notes/mustacci"
+  begin
+    $stderr.puts "\e[31m#{error}\e[0m"
+    Dir.chdir path do
+      exe "git notes --ref=Mustacci add -fm 'Build failed! #{duration}' #{sha}"
+      exe "git push origin refs/notes/Mustacci"
+    end
+    exe "./script/failed #{ARGV.join(" ")}"
+  rescue BuildFailed => error
+    $stderr.puts "\e[31mEven handling failed build failed.\e[0m"
+  ensure
+    exit 1
   end
 end
