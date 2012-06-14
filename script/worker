@@ -8,7 +8,6 @@ require 'pty'
 QUEUE = "tcp://127.0.0.1:9000"
 CONFIG = YAML.load(File.open("repositories.yml"))
 
-
 def run(data)
   payload = JSON.parse(data)
   repo = payload["repository"]["url"]
@@ -26,7 +25,6 @@ def run(data)
 
 end
 
-
 puts "Listening for builds on #{QUEUE}"
 
 context = ZMQ::Context.new(1)
@@ -34,6 +32,12 @@ inbound = context.socket(ZMQ::UPSTREAM)
 inbound.bind QUEUE
 
 loop do
+  trap('INT') do
+    puts 'Exit signal received, shutting down...'
+    inbound.close
+    exit
+  end
+
   data = inbound.recv
   puts "Received data here!"
   begin
