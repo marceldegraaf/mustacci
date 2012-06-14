@@ -2,9 +2,11 @@
 
 message = <<-DOC
 
-Your build FAILED! Now it's up to you to determine what should be done.
+Your build FAILED!
 
-Replace the contents of this file with what you want to happen after failed builds.
+Now it's up to you to determine what should be done.
+Replace the contents of this file with what you want
+to happen after failed builds.
 
 Suggestions:
 
