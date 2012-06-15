@@ -1,0 +1,89 @@
+@import url(http://fonts.googleapis.com/css?family=Amaranth:700)
+@import "compass/css3/border-radius"
+
+@import "font-awesome"
+
+body
+  background: url('/images/background.png') repeat
+
+h1
+  font-family: 'Amaranth', 'Arial', sans-serif
+  font-size: 100px
+  line-height: 100px
+  color: #111
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1)
+  margin-top: 20px
+
+  span
+    float: right
+    display: block
+
+    &.tagline
+      font-size: 28px
+      line-height: 30px
+      color: #fff
+      text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.1)
+      margin-top: 43px
+      margin-right: 0px
+
+
+#main
+  margin-top: 20px
+
+.project
+  +border-radius(5px) 
+  background: #fff
+  margin-bottom: 15px
+  margin-left: 5px
+
+  .span4
+    width: 295px
+
+  .span3
+    width: 200px
+
+  p
+    font-size: 20px
+
+    &.status
+      margin-top: 18px
+
+      &.success
+        color: green
+
+      &.fail
+        color: red
+
+    &.title
+      color: #222
+      line-height: 30px
+      margin-top: 9px
+
+      a
+        color: #222
+        text-decoration: none
+        &:hover
+          color: #666
+
+  .icons
+    float: left
+    font-size: 20px
+    margin-top: 15px
+
+    a
+      font-size: 15px
+      color: #444
+      i
+        vertical-align: middle
+        margin-right: 5px
+
+      &:hover
+        color: #666
+        text-decoration: none
+
+  .btn
+    margin-top: 9px
+    margin-right: 10px
+    i
+      vertical-align: 0px
+      margin-right: 5px

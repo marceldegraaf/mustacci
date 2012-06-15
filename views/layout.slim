@@ -1,6 +1,14 @@
 html
   head
+    link type='text/css' rel='stylesheet' href='/stylesheets/bootstrap.min.css'
+    link type='text/css' rel='stylesheet' href='/stylesheets/main.css'
     title Mustacci
 
   body
-    == yield
+    h1
+      .container
+        | Mustacci
+        span.tagline Continuous integration that doesn't suck
+
+    #main.container
+      == yield
