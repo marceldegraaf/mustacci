@@ -16,6 +16,10 @@ get '/' do
   slim :index
 end
 
+get '/projects/:name' do
+  slim :project
+end
+
 get '/stylesheets/main.css' do
   sass :main, Compass.sass_engine_options
 end
