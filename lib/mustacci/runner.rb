@@ -95,7 +95,7 @@ module Mustacci
 
     def create_fail_note
       exe "git notes --ref=Mustacci add -fm 'Build failed! #{duration}' #{sha}"
-      exe "git push origin refs/notes/Mustacci"
+      exe "git push -f origin refs/notes/Mustacci"
     end
 
     def handle_failed_build(error)
