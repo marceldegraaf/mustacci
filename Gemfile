@@ -7,3 +7,8 @@ gem 'compass'
 gem 'shotgun'
 gem 'zmq'
 gem 'thin'
+gem 'rake'
+
+group :test do
+  gem 'rspec'
+end
