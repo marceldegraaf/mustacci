@@ -12,12 +12,29 @@ set :root,           File.dirname(__FILE__)
 set :views,          'views'
 set :public_folder,  'public'
 
+helpers do
+
+  def time(time)
+    time.strftime('%m/%d/%Y %H:%M:%S')
+  end
+
+end
+
 get '/' do
   slim :index
 end
 
-get '/projects/:name' do
+get '/projects/:user/:project' do
+  @user, @project = params[:user], params[:project]
   slim :project
+end
+
+get '/projects/:user/:project/builds/:hash' do
+  @hash = params[:hash]
+  @file = File.open("tmp/output/#{@hash}.html")
+  @time = @file.mtime
+  @output = @file.read
+  slim :build
 end
 
 get '/stylesheets/main.css' do

@@ -1,0 +1,23 @@
+.row.project.show
+  .span12
+    h2
+      | Mustacci 
+      small #{@hash} on #{time(@time)}
+
+
+    hr
+
+    .details
+      p
+        | Built on: 
+        a href=""
+          = time(@time)
+
+      p
+        | Triggered by commit: 
+        a href=""
+          | a723b81f
+
+.row
+  .span12
+    #console== @output

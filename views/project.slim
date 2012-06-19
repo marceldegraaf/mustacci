@@ -1,10 +1,33 @@
+javascript:
+  var client = new Faye.Client('http://localhost:9393/faye');
+  var channel = [ '/build', "#{@user}", "#{@project}" ].join('/');
+
+  //console.log('Subscribing to Faye channel: ' + channel);
+
+  var subscription = client.subscribe(channel, function(message) {
+    $('#console span.empty').remove();
+    var line = message.text;
+
+    // Show the line
+    $('#console').append(line);
+
+    // Scroll to the bottom
+    $(document).scrollTop($(document).height())
+  });
+
 .row.project.show
   .span12
-    h2 SchoonOnline
+    h2 Mustacci
 
     hr
 
-    p.commit
-      | Last commit: 
-      a href=""
-        | a2f621c7b
+    .details
+      p
+        | Last commit: 
+        a href=""
+          | a723b81f
+
+.row
+  .span12
+    #console
+      span.empty This is where the build log will be shown
