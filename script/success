@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+message = <<-DOC
+
+Your build was SUCCESSFUL!
+
+Now it's up to you to determine what should be done.
+Replace the contents of this file with what you want
+to happen after successful builds.
+
+Suggestions:
+
+* Send an email to you and your team members
+* Send a message to your Campfire room
+* Deploy the application to staging or production
+
+DOC
+
+puts message

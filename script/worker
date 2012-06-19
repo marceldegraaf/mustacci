@@ -1,8 +1,33 @@
 #!/usr/bin/env ruby
 
 require 'zmq'
+require 'pty'
+require 'digest'
+require 'fileutils'
 
 QUEUE = "tcp://127.0.0.1:9000"
+
+def log(message)
+  $stdout.puts "\e[33m[#{Time.now}] #{message}\e[0m"
+end
+
+def run(data)
+  filename = "tmp/payloads/#{Digest::MD5.hexdigest(data)}.json"
+  FileUtils.mkdir_p File.dirname(filename)
+  File.open(filename, 'w:utf-8') { |f| f << data }
+
+  log "Starting build."
+
+  PTY.spawn "./script/runner #{filename}" do |read, write, pid|
+    read.each_char do |char|
+      # TODO send this to a websocket
+      print char
+    end
+  end
+
+  log "Done with this build."
+
+end
 
 puts "Listening for builds on #{QUEUE}"
 
@@ -11,6 +36,21 @@ inbound = context.socket(ZMQ::UPSTREAM)
 inbound.bind QUEUE
 
 loop do
+  trap('INT') do
+    log 'Exit signal received, shutting down...'
+    inbound.close
+    exit
+  end
+
   data = inbound.recv
-  puts "[#{Time.now}] #{data.inspect}"
+  begin
+    run data
+  rescue Exception => error
+    $stderr.puts "\e[31m[#{Time.now}] #{error.class}: #{error}\e[0m"
+    error.backtrace.each do |line|
+      $stderr.puts "      \e[30m#{line}\e[0m"
+    end
+    inbound.close
+    exit 1
+  end
 end
