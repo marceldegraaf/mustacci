@@ -38,13 +38,9 @@ Install the ruby dependencies:
     gem install bundler
     bundle install
 
-Start the listener:
+Start all the things:
 
-    ./script/github
-
-Start a worker:
-
-    ./script/worker
+    foreman start
 
 Enter the URL of the listener as web service hook in Github.
 For example: `http://mustacci.example.com/github`.
