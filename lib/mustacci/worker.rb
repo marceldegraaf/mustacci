@@ -22,7 +22,6 @@ module Mustacci
 
       prepare_output_file
 
-
       Mustacci.log "Starting build."
       Mustacci.log "Sending output to channel: #{channel}"
 
