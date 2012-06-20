@@ -1,77 +1,10 @@
 #!/usr/bin/env ruby
 
 require 'zmq'
-require 'pty'
-require 'digest'
-require 'fileutils'
-require 'net/http'
-require 'json'
+require './lib/mustacci'
+require './lib/mustacci/worker'
 
 QUEUE = "tcp://127.0.0.1:9000"
-WS    = "http://127.0.0.1:9393/faye"
-
-def log(message)
-  $stdout.puts "\e[33m[#{Time.now}] #{message}\e[0m"
-end
-
-def clean(line)
-  line.gsub!("\e[0m", '</span>')
-  line.gsub!(/\e\[(\d+)m/, '<span class="color_\\1">')
-  line.gsub!(/\s{4}/, '&nbsp;&nbsp;&nbsp;&nbsp;')
-  line.gsub!("\r\n", '<br>')
-end
-
-def run(data)
-  filename = "tmp/payloads/#{Digest::MD5.hexdigest(data)}.json"
-  FileUtils.mkdir_p File.dirname(filename)
-  File.open(filename, 'w:utf-8') { |f| f << data }
-
-  output_path = "tmp/output/#{Digest::MD5.hexdigest(data)}.html"
-  FileUtils.mkdir_p File.dirname(output_path)
-  output_file = File.open(output_path, 'w:utf-8')
-
-  ws = URI.parse(WS)
-
-  log "Starting build."
-
-  # Extract user/project from github payload,
-  # e.g. marceldegraaf/mustacci
-  begin
-    hash = JSON.parse(data)
-    repo = hash['repository']['url'].scan(/:(\w+\/\w+)/).first.first
-  rescue
-    repo = ''
-  end
-
-  channel = "/build/#{repo}"
-  log "Sending output to channel: #{channel}"
-
-  PTY.spawn "./script/runner #{filename}" do |read, write, pid|
-    line = ''
-
-    read.each_char do |char|
-      line << char
-
-      # Send output to web socket per line, not per character
-      if char == "\n"
-        line = clean(line)
-
-        message = { channel: channel, data: { text: line } }
-        Net::HTTP.post_form(ws, message: message.to_json)
-
-        output_file << line
-        line = ''
-      end
-    end
-  end
-
-  # Write the build output to a file
-  output_file.close
-  log "Output written to file: #{output_path}"
-
-  log "Done with this build."
-
-end
 
 puts "Listening for builds on #{QUEUE}"
 
@@ -81,14 +14,14 @@ inbound.bind QUEUE
 
 loop do
   trap('INT') do
-    log 'Exit signal received, shutting down...'
+    Mustacci.log 'Exit signal received, shutting down...'
     inbound.close
     exit
   end
 
   data = inbound.recv
   begin
-    run data
+    Mustacci::Worker.new(data).run!
   rescue Exception => error
     $stderr.puts "\e[31m[#{Time.now}] #{error.class}: #{error}\e[0m"
     error.backtrace.each do |line|
