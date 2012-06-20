@@ -26,21 +26,40 @@ h1
       margin-top: 43px
       margin-right: 0px
 
+  a
+    color: #111
+    text-decoration: none
+
+    &:hover
+      color: #222
+      text-decoration: none
 
 #main
   margin-top: 20px
 
-.project
+.panel
   +border-radius(5px) 
   background: #fff
   margin-bottom: 15px
   margin-left: 5px
+  padding: 10px
 
-  .span4
-    width: 295px
+  &.show
+    h2
+      margin-top: 20px
+      font-size: 30px
 
-  .span3
-    width: 200px
+      small
+        margin-left: 30px
+
+    .details
+      p
+        font-family: "Courier"
+        font-size: 12px
+        color: #aaa
+
+        a
+          color: #666
 
   h2
     color: #222
@@ -55,17 +74,30 @@ h1
       &:hover
         color: #666
 
+  hr
+    width: 920px
+
+.project
+  .panel
+    padding: 0px
+    float: left
+    margin-left: 22px
+    width: 940px
+
   p
     font-size: 20px
 
     &.status
-      margin-top: 18px
+      margin-top: 16px
 
-      &.success
+      .icon-ok
         color: green
 
-      &.fail
+      .icon-delete
         color: red
+
+      .icon-question-sign
+        color: #777
 
   .icons
     float: left
@@ -84,29 +116,24 @@ h1
         text-decoration: none
 
   .btn
-    margin-top: 9px
+    margin-top: 6px
     margin-right: 10px
     i
       vertical-align: 0px
       margin-right: 5px
 
-  hr
-    margin-left: -20px
-    width: 935px
+.build
+  h2
+    .status
+      margin-right: 30px
+      margin-top: 10px
+      font-size: 40px
 
-  &.show
-    h2
-      margin-top: 20px
-      font-size: 30px
+      .icon-ok
+        color: green
 
-    .details
-      p
-        font-family: "Courier"
-        font-size: 12px
-        color: #aaa
-
-        a
-          color: #666
+      .icon-delete
+        color: red
 
 #console
   background: #222

@@ -1,43 +1,29 @@
-.row.project
-  .span1
-    p.status.success
-      i.icon-ok
+- @projects.each do |project|
+  .row
+    .project
+      .panel
+        .span1
+          p.status
+            - if project.builds.any?
+              - if project.builds.last.success
+                i.icon-ok
+              - else
+                i.icon-delete
+            - else
+              i.icon-question-sign
 
-  .span4
-    h2
-      a href="/projects/marceldegraaf/mustacci"
-        | Mustacci
+        .span4
+          h2
+            a href="/projects/#{project.repo}"
+              = project.human_name
 
-  .span4
-    .icons
-      a href=""
-        i.icon-github
-        | View on Github
+        .span4
+          .icons
+            a href="http://github.com/#{project.repo}"
+              i.icon-github
+              | View on Github
 
-  .span3
-    .pull-right
-      a href="" class="btn btn-primary"
-        i.icon-cogs.icon-large
-        | Build now
-
-.row.project
-  .span1
-    p.status.fail
-      i.icon-remove
-
-  .span4
-    h2
-      a href=""
-        | SchoonOnline
-
-  .span4
-    .icons
-      a href=""
-        i.icon-github
-        | View on Github
-
-  .span3
-    .pull-right
-      a href="" class="btn btn-primary"
-        i.icon-cogs.icon-large
-        | Build now
+        .span2.pull-right
+          a href="" class="btn btn-primary pull-right"
+            i.icon-cogs.icon-large
+            | Build now

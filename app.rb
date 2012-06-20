@@ -2,6 +2,7 @@ require 'rubygems'
 require 'compass'
 require 'sinatra'
 require 'slim'
+require './lib/mustacci/models'
 
 configure do
   Compass.add_project_configuration(File.join(Sinatra::Application.root, 'config', 'compass.rb'))
@@ -21,19 +22,19 @@ helpers do
 end
 
 get '/' do
+  @projects = Mustacci::Project.all
   slim :index
 end
 
-get '/projects/:user/:project' do
-  @user, @project = params[:user], params[:project]
+get '/projects/:owner/:name' do
+  @project = Mustacci::Project.first(owner: params[:owner], name: params[:name])
   slim :project
 end
 
-get '/projects/:user/:project/builds/:hash' do
-  @hash = params[:hash]
-  @file = File.open("tmp/output/#{@hash}.html")
-  @time = @file.mtime
-  @output = @file.read
+get '/projects/:owner/:name/builds/:identifier' do
+  @project = Mustacci::Project.first(owner: params[:owner], name: params[:name])
+  @build = @project.builds.first(identifier: params[:identifier])
+
   slim :build
 end
 

@@ -1,6 +1,6 @@
 javascript:
   var client = new Faye.Client('http://localhost:9393/faye');
-  var channel = [ '/build', "#{@user}", "#{@project}" ].join('/');
+  var channel = [ '/build', "#{@project.repo}" ].join('/');
 
   //console.log('Subscribing to Faye channel: ' + channel);
 
@@ -15,19 +15,30 @@ javascript:
     $(document).scrollTop($(document).height())
   });
 
-.row.project.show
+.row
   .span12
-    h2 Mustacci
+    .project.panel.show
+      h2= @project.human_name
 
-    hr
+      hr
 
-    .details
-      p
-        | Last commit: 
-        a href=""
-          | a723b81f
+      .details
+        p
+          | Last commit: 
+          a href=""
+            | a723b81f
 
 .row
   .span12
     #console
       span.empty This is where the build log will be shown
+
+.row
+  .span12
+    .builds.panel
+      h2 Older builds
+      ul
+        - @project.builds.each do |build|
+          li
+            a href="/projects/#{build.project.repo}/builds/#{build.identifier}"
+              = time(build.built_at)

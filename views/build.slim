@@ -1,23 +1,30 @@
-.row.project.show
+.row
   .span12
-    h2
-      | Mustacci 
-      small #{@hash} on #{time(@time)}
+    .build.panel.show
+      h2
+        a href="/projects/#{@project.repo}"
+          = @project.human_name
+        small #{time(@build.built_at)}
 
+        .status.pull-right
+          - if @build.success
+            i.icon-ok
+          - else
+            i.icon-delete
 
-    hr
+      hr
 
-    .details
-      p
-        | Built on: 
-        a href=""
-          = time(@time)
+      .details
+        p
+          | Built at: 
+          a href=""
+            = time(@build.built_at)
 
-      p
-        | Triggered by commit: 
-        a href=""
-          | a723b81f
+        p
+          | Triggered by commit: 
+          a href=""
+            | a723b81f
 
 .row
   .span12
-    #console== @output
+    #console== @build.output
