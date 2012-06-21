@@ -1,30 +1,51 @@
+- if @build.running?
+  javascript:
+    var client = new Faye.Client('http://localhost:9393/faye');
+    var channel = [ '/build', "#{@build.id}" ].join('/');
+
+    var subscription = client.subscribe(channel, function(message) {
+      $('#console span.empty').remove();
+      var line = message.text;
+
+      // Show the line
+      $('#console').append(line);
+
+      // Scroll to the bottom
+      $(document).scrollTop($(document).height())
+    });
+
 .row
   .span12
     .build.panel.show
       h2
-        a href="/projects/#{@project.repo}"
-          = @project.human_name
-        small #{time(@build.built_at)}
+        a href="/projects/#{@project.id}"
+          = @project.name.capitalize
+        small
+          - if @build.completed?
+            = time(@build.completed_at)
+          - else
+            | Building...
+
 
         .status.pull-right
-          - if @build.success
-            i.icon-ok
+          - if @build.completed?
+            - if @build.success?
+              i.icon-ok
+            - else
+              i.icon-delete
           - else
-            i.icon-delete
+            i.icon-cogs
 
       hr
 
       .details
-        p
-          | Built at: 
-          a href=""
-            = time(@build.built_at)
-
-        p
-          | Triggered by commit: 
-          a href=""
-            | a723b81f
+        p Started at: #{time(@build.started_at)}
+        
+        - if @build.completed
+          p Completed at: #{time(@build.completed_at)}
 
 .row
   .span12
-    #console== @build.output
+    #console
+      - if @build.completed?
+        == @build.output

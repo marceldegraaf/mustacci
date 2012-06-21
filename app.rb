@@ -1,8 +1,12 @@
+$LOAD_PATH.unshift(File.expand_path('./lib', File.dirname(__FILE__)))
+
 require 'rubygems'
 require 'compass'
 require 'sinatra'
 require 'slim'
-require './lib/mustacci/models'
+require 'mustacci/database'
+require 'mustacci/build'
+require 'mustacci/project'
 
 configure do
   Compass.add_project_configuration(File.join(Sinatra::Application.root, 'config', 'compass.rb'))
@@ -16,7 +20,12 @@ set :public_folder,  'public'
 helpers do
 
   def time(time)
+    time = Time.parse(time) unless time.is_a?(Time)
     time.strftime('%m/%d/%Y %H:%M:%S')
+  end
+
+  def database
+    @database ||= Mustacci::Dabatase.new
   end
 
 end
@@ -26,14 +35,14 @@ get '/' do
   slim :index
 end
 
-get '/projects/:owner/:name' do
-  @project = Mustacci::Project.first(owner: params[:owner], name: params[:name])
+get '/projects/:id' do
+  @project = Mustacci::Project.find(params[:id])
   slim :project
 end
 
-get '/projects/:owner/:name/builds/:identifier' do
-  @project = Mustacci::Project.first(owner: params[:owner], name: params[:name])
-  @build = @project.builds.first(identifier: params[:identifier])
+get '/projects/:project_id/builds/:id' do
+  @project = Mustacci::Project.find(params[:project_id])
+  @build = Mustacci::Build.find(params[:id])
 
   slim :build
 end

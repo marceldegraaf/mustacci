@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
 
+$LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))
+
 require 'zmq'
-require './lib/mustacci'
-require './lib/mustacci/worker'
+require 'mustacci'
+require 'mustacci/worker'
 
 QUEUE = "tcp://127.0.0.1:9000"
 

@@ -5,21 +5,24 @@
         .span1
           p.status
             - if project.builds.any?
-              - if project.builds.last.success
-                i.icon-ok
+              - if project.builds.first.completed
+                - if project.builds.first.success
+                  i.icon-ok
+                - else
+                  i.icon-delete
               - else
-                i.icon-delete
+                i.icon-cogs
             - else
               i.icon-question-sign
 
         .span4
           h2
-            a href="/projects/#{project.repo}"
-              = project.human_name
+            a href="/projects/#{project.id}"
+              = project.name.capitalize
 
         .span4
           .icons
-            a href="http://github.com/#{project.repo}"
+            a href="http://github.com/#{project.repo_name}"
               i.icon-github
               | View on Github
 

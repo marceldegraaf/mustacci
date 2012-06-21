@@ -1,34 +1,47 @@
 #!/usr/bin/env rake
 
 require 'rspec/core/rake_task'
-require './app'
+require './lib/mustacci/database'
 
 RSpec::Core::RakeTask.new(:spec)
 task :default => :spec
 
 namespace :db do
-  desc "Seed the database with some default stuff"
+  desc "Seed the database with defaults"
   task :seed do
-    Mustacci::Project.all.destroy!
-    Mustacci::Build.all.destroy!
 
-    project = Mustacci::Project.create(
-      name: 'mustacci',
-      owner: 'marceldegraaf',
-      human_name: 'Mustacci'
-    )
+    database = Mustacci::Database.reset
 
-    project2 = Mustacci::Project.create(
-      name: 'schoononline',
-      owner: 'exodusbv',
-      human_name: 'SchoonOnline'
-    )
+    # Project views
+    project_views = {
+      "_id" => "_design/projects",
+      views: {
+        by_name: {
+          map: "function(doc) {
+                  if(doc.type && doc.type == 'project' && doc.name && doc.owner) {
+                    emit(doc.owner + '/' + doc.name, doc); 
+                  }
+                }"
+        }
+      }
+    }
 
-    project.builds.create(
-      success: true,
-      building: false,
-      identifier: 'f0ea225f58bd435a7d85151e4b88cf4f',
-      built_at: Time.now
-    )
+    # Build views
+    build_views = {
+      "_id" => "_design/builds",
+      views: {
+        by_project: {
+          map: "function(doc) {
+                  if(doc.type && doc.type == 'build' ) {
+                    emit(doc.project_id, doc)
+                  }
+                }"
+        }
+      }
+    }
+
+    database.save(project_views)
+    database.save(build_views)
+
   end
 end

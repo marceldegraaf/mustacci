@@ -1,8 +1,6 @@
 javascript:
   var client = new Faye.Client('http://localhost:9393/faye');
-  var channel = [ '/build', "#{@project.repo}" ].join('/');
-
-  //console.log('Subscribing to Faye channel: ' + channel);
+  var channel = [ '/build', "#{@project.builds.last.id}" ].join('/');
 
   var subscription = client.subscribe(channel, function(message) {
     $('#console span.empty').remove();
@@ -18,7 +16,7 @@ javascript:
 .row
   .span12
     .project.panel.show
-      h2= @project.human_name
+      h2= @project.name.capitalize
 
       hr
 
@@ -40,5 +38,7 @@ javascript:
       ul
         - @project.builds.each do |build|
           li
-            a href="/projects/#{build.project.repo}/builds/#{build.identifier}"
-              = time(build.built_at)
+            a href="/projects/#{@project.id}/builds/#{build.id}"
+              = time(build.started_at)
+              - if build.running?
+                | (running)

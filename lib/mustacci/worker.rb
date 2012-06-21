@@ -3,6 +3,10 @@ require 'digest'
 require 'fileutils'
 require 'net/http'
 require 'json'
+require 'mustacci/database'
+require 'mustacci/payload'
+require 'mustacci/project'
+require 'mustacci/build'
 
 module Mustacci
   class Worker
@@ -16,16 +20,17 @@ module Mustacci
     end
 
     def run!
-      filename = "tmp/payloads/#{Digest::MD5.hexdigest(@data)}.json"
-      FileUtils.mkdir_p File.dirname(filename)
-      File.open(filename, 'w:utf-8') { |f| f << @data }
+      @payload = Mustacci::Payload.save(@data)
 
-      prepare_output_file
+      @project = find_or_create_project
+      @build = create_build(@project.id)
 
-      Mustacci.log "Starting build."
+      Mustacci.log "Starting build. Build id: #{@build.id}"
       Mustacci.log "Sending output to channel: #{channel}"
 
-      PTY.spawn "./script/runner #{filename}" do |read, write, pid|
+      output = ''
+
+      PTY.spawn "./script/runner #{@build.id}" do |read, write, pid|
         line = ''
 
         read.each_char do |char|
@@ -35,27 +40,55 @@ module Mustacci
           if char == "\n"
             line = clean(line)
             write_to_websocket(line)
-            write_to_output_file(line)
+            output << line
             line = ''
           end
         end
       end
 
-      # Write the build output to a file
-      close_output_file
+      @build.save_log(output)
 
-      Mustacci.log "Output written to file: #{@output_path}"
-      Mustacci.log "Done with this build."
+      Mustacci.log "Done building for build id: #{@build.id}"
     end
 
     private
+
+      def find_or_create_project
+        project = database.view('projects/by_name', key: repository_name)
+        Mustacci.log repository_name
+        Mustacci.log project.inspect
+
+        if project.any?
+          project = project.first['value']
+        else
+          project = { type: 'project', name: @payload.repository.name, owner: @payload.repository.owner.name }
+          database.save( project )
+          project
+        end
+
+        Mustacci::Project.new(project)
+      end
+
+      def create_build(project_id)
+        build = {
+          type: 'build',
+          project_id: project_id,
+          payload_id: @payload.id,
+          success: false,
+          completed: false,
+          started_at: Time.now
+        }
+
+        database.save(build)
+        Mustacci::Build.new(build)
+      end
 
       def write_to_websocket(line)
         begin
           message = { channel: channel, data: { text: line } }
           Net::HTTP.post_form(socket, message: message.to_json)
         rescue Errno::ECONNREFUSED
-          Mustacci.log 'Could not reach Faye'
+          Mustacci.log line
         end
       end
 
@@ -63,31 +96,12 @@ module Mustacci
         @ws ||= URI.parse(WS)
       end
 
-      def write_to_output_file(line)
-        @output_file << line
-      end
-
       def channel
-        "/build/#{repo}"
+        "/build/#{@build.id}"
       end
 
-      def repo
-        begin
-          hash = JSON.parse(@data)
-          hash['repository']['url'].scan(/:(\w+\/\w+)/).first.first
-        rescue
-          ''
-        end
-      end
-
-      def prepare_output_file
-        @output_path = "tmp/output/#{Digest::MD5.hexdigest(@data)}.html"
-        FileUtils.mkdir_p File.dirname(@output_path)
-        @output_file = File.open(@output_path, 'w:utf-8')
-      end
-
-      def close_output_file
-        @output_file.close
+      def repository_name
+        [ @payload.repository.owner.name, @payload.repository.name ].join('/')
       end
 
       def clean(line)
@@ -95,6 +109,10 @@ module Mustacci
         line.gsub!(/\e\[(\d+)m/, '<span class="color_\\1">')
         line.gsub!(/\s{4}/, '&nbsp;&nbsp;&nbsp;&nbsp;')
         line.gsub!("\r\n", '<br>')
+      end
+
+      def database
+        @database ||= Mustacci::Database.new
       end
 
   end
