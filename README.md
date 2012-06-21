@@ -27,16 +27,22 @@ fun!
 
 * Ruby 1.9.3
 * ZeroMQ
+* CouchDB
 
 ## Installation
 
 Install Ruby.
 Install ZeroMQ.
+Install CouchDB.
 
 Install the ruby dependencies:
 
     gem install bundler
     bundle install
+
+Put the configuration file in place and edit it if so desired
+
+    cp config/mustacci.example.yml config/mustacci.yml
 
 Start all the things:
 
