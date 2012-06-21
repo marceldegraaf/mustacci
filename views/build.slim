@@ -28,13 +28,7 @@
 
 
         .status.pull-right
-          - if @build.completed?
-            - if @build.success?
-              i.icon-ok
-            - else
-              i.icon-delete
-          - else
-            i.icon-cogs
+          == build_status @build
 
       hr
 
@@ -43,6 +37,8 @@
         
         - if @build.completed
           p Completed at: #{time(@build.completed_at)}
+
+        p Time elapsed: #{@build.elapsed.to_i} seconds
 
 .row
   .span12

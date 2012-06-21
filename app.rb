@@ -21,13 +21,21 @@ helpers do
 
   def time(time)
     time = Time.parse(time) unless time.is_a?(Time)
-    time.strftime('%m/%d/%Y %H:%M:%S')
+    time.strftime('%d/%m/%Y %H:%M:%S')
   end
 
   def database
     @database ||= Mustacci::Dabatase.new
   end
 
+  def build_status(build)
+    slim :_build_status, layout: false, locals: { build: build }
+  end
+
+end
+
+error do
+  "<p>HALP! The shit hit the fan in such a way that I don't know what to do. The error message:<br><br>" + request.env['sinatra.error'].message + "</p>"
 end
 
 get '/' do

@@ -46,7 +46,6 @@ h1
 
   &.show
     h2
-      margin-top: 20px
       font-size: 30px
 
       small
@@ -90,15 +89,6 @@ h1
     &.status
       margin-top: 16px
 
-      .icon-ok
-        color: green
-
-      .icon-delete
-        color: red
-
-      .icon-question-sign
-        color: #777
-
   .icons
     float: left
     font-size: 20px
@@ -129,11 +119,14 @@ h1
       margin-top: 10px
       font-size: 40px
 
-      .icon-ok
-        color: green
+.icon-ok
+  color: green
 
-      .icon-delete
-        color: red
+.icon-remove
+  color: red
+
+.icon-question-sign
+  color: #777
 
 #console
   background: #222
@@ -141,6 +134,7 @@ h1
   font-family: 'Courier'
   margin-left: 4px
   margin-bottom: 20px
+  margin-top: 7px
   padding: 10px
   +border-radius(5px)
 
@@ -155,3 +149,17 @@ h1
 
   .color_31
     color: red
+
+.builds
+  h2
+    margin-bottom: 20px
+  .row
+    padding: 10px 0px 10px 0px
+    border-bottom: 1px solid #eee
+    margin-left: 0px
+
+    .status
+      margin-left: 5px
+
+    &:last-child
+      border-bottom: 0px

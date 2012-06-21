@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby
 
+$LOAD_PATH.unshift(File.expand_path('../../lib', __FILE__))
+
 require 'sinatra'
 require 'zmq'
+require 'mustacci'
 
 QUEUE = "tcp://127.0.0.1:9000"
 
@@ -11,11 +14,21 @@ context = ZMQ::Context.new(1)
 outbound = context.socket(ZMQ::DOWNSTREAM)
 outbound.connect QUEUE
 
+if Mustacci.config.github.auth.enabled
+  use Rack::Auth::Basic, "Mustacci" do |username, password|
+    [username, password] == [Mustacci.config.github.auth.user, Mustacci.config.github.auth.password]
+  end
+end
+
 post '/github' do
+  Mustacci.log "Post-receive hook triggered"
+
   if params[:payload]
     outbound.send params[:payload]
+    Mustacci.log "Payload deployed"
     200
   else
+    Mustacci.log "No payload received. Did nothing"
     400
   end
 end

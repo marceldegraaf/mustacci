@@ -5,13 +5,7 @@
         .span1
           p.status
             - if project.builds.any?
-              - if project.builds.first.completed
-                - if project.builds.first.success
-                  i.icon-ok
-                - else
-                  i.icon-delete
-              - else
-                i.icon-cogs
+              == build_status project.builds.first
             - else
               i.icon-question-sign
 
@@ -22,11 +16,6 @@
 
         .span4
           .icons
-            a href="http://github.com/#{project.repo_name}"
+            a href="http://github.com/#{project.repo_name}" target="_blank"
               i.icon-github
               | View on Github
-
-        .span2.pull-right
-          a href="" class="btn btn-primary pull-right"
-            i.icon-cogs.icon-large
-            | Build now

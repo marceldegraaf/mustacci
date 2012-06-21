@@ -7,9 +7,13 @@ module Mustacci
 
     attr_reader :connection
 
+    class DatabaseDown < RuntimeError; end
+
     def self.reset
-      new.connection.delete!
-      new
+      execute do
+        new.connection.delete!
+        new
+      end
     end
 
     def initialize
@@ -17,18 +21,31 @@ module Mustacci
     end
 
     def get(id)
-      connection.get(id)
+      execute { connection.get(id) }
     end
 
     def save(document)
-      connection.save_doc(document)
+      execute { connection.save_doc(document) }
     end
 
     def view(name, params = {})
-      connection.view(name, params)['rows']
-    rescue RestClient::ResourceNotFound
-      []
+      execute do
+        begin
+          connection.view(name, params)['rows']
+        rescue RestClient::ResourceNotFound
+          []
+        end
+      end
     end
+
+    private
+
+      def execute(&block)
+        yield
+      rescue Errno::ECONNREFUSED
+        raise DatabaseDown, 'CouchDB seems to be down.'
+      end
+
 
   end
 end

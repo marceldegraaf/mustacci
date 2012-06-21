@@ -1,6 +1,6 @@
 javascript:
   var client = new Faye.Client('http://localhost:9393/faye');
-  var channel = [ '/build', "#{@project.builds.last.id}" ].join('/');
+  var channel = [ '/build', "#{@project.id}" ].join('/');
 
   var subscription = client.subscribe(channel, function(message) {
     $('#console span.empty').remove();
@@ -21,24 +21,31 @@ javascript:
       hr
 
       .details
-        p
-          | Last commit: 
-          a href=""
-            | a723b81f
+        - if @project.builds.any?
+          - build = @project.builds.first
+          p
+            | Last build: 
+            a href="/projects/#{@project.id}/builds/#{build.id}"
+              - if build.completed?
+                = time(build.completed_at)
+              - else
+                = time(build.started_at)
 
 .row
   .span12
     #console
-      span.empty This is where the build log will be shown
+      span.empty As soon as a build starts running for this project, it's output will be shown here
 
 .row
   .span12
     .builds.panel
       h2 Older builds
-      ul
-        - @project.builds.each do |build|
-          li
+      - @project.builds.each do |build|
+        .row
+          .span1.status
+            == build_status(build)
+          .span2
             a href="/projects/#{@project.id}/builds/#{build.id}"
               = time(build.started_at)
-              - if build.running?
-                | (running)
+
+          .span2 #{build.elapsed.to_i} seconds

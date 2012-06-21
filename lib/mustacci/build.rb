@@ -54,6 +54,18 @@ module Mustacci
       completed && success == false
     end
 
+    def payload
+      Mustacci::Payload.load(self.payload_id)
+    end
+
+    def elapsed
+      if completed?
+        Time.parse(completed_at) - Time.parse(started_at)
+      else
+        Time.now - Time.parse(started_at)
+      end
+    end
+
     def success!
       self.document['completed'] = true
       self.document['completed_at'] = Time.now

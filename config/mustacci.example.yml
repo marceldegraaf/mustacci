@@ -1,0 +1,5 @@
+github:
+  auth:
+    enabled: true
+    user: 'mustacci'
+    password: '43bb10d6221f6c9d6534d34a1b993d9b486e973f'

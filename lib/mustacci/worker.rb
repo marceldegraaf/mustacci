@@ -26,7 +26,7 @@ module Mustacci
       @build = create_build(@project.id)
 
       Mustacci.log "Starting build. Build id: #{@build.id}"
-      Mustacci.log "Sending output to channel: #{channel}"
+      Mustacci.log "Sending output to channels: #{channels.join(', ')}"
 
       output = ''
 
@@ -85,8 +85,10 @@ module Mustacci
 
       def write_to_websocket(line)
         begin
-          message = { channel: channel, data: { text: line } }
-          Net::HTTP.post_form(socket, message: message.to_json)
+          channels.each do |channel|
+            message = { channel: channel, data: { text: line } }
+            Net::HTTP.post_form(socket, message: message.to_json)
+          end
         rescue Errno::ECONNREFUSED
           Mustacci.log line
         end
@@ -96,8 +98,11 @@ module Mustacci
         @ws ||= URI.parse(WS)
       end
 
-      def channel
-        "/build/#{@build.id}"
+      def channels
+        [
+          "/build/#{@build.id}",
+          "/build/#{@project.id}"
+        ]
       end
 
       def repository_name

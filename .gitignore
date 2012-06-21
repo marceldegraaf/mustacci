@@ -2,3 +2,4 @@
 /tmp
 /log
 /db/*.sqlite
+/config/mustacci.yml

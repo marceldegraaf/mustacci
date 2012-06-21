@@ -11,6 +11,7 @@ gem 'rake'
 gem 'faye'
 gem 'foreman'
 gem 'couchrest'
+gem 'hashie'
 
 group :test do
   gem 'rspec'
