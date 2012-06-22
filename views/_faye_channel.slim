@@ -1,0 +1,14 @@
+javascript:
+  var client = new Faye.Client("#{{faye_uri}}");
+  var channel = [ '/build', "#{channel_id}" ].join('/');
+
+  var subscription = client.subscribe(channel, function(message) {
+    $('#console span.empty').remove();
+    var line = message.text;
+
+    // Show the line
+    $('#console').append(line);
+
+    // Scroll to the bottom
+    $(document).scrollTop($(document).height())
+  });

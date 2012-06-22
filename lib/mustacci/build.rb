@@ -67,27 +67,40 @@ module Mustacci
     end
 
     def success!
-      self.document['completed'] = true
-      self.document['completed_at'] = Time.now
-      self.document['success'] = true
-      self.document.save
+      document = reload
+      document['completed'] = true
+      document['completed_at'] = Time.now
+      document['success'] = true
+      document.save
     end
 
     def failure!
-      self.document['completed'] = true
-      self.document['completed_at'] = Time.now
-      self.document['success'] = false
-      self.document.save
+      document = reload
+      document['completed'] = true
+      document['completed_at'] = Time.now
+      document['success'] = false
+      document.save
+    end
+
+    def complete!
+      document = reload
+      document['completed'] = true
+      document['completed_at'] = Time.now
+      document.save
     end
 
     def save_log(log)
       # We need to reload the document to prevent a 409 Conflict error
-      reloaded_document = database.get(self.document['_id'])
+      reloaded_document = reload
 
       database.connection.put_attachment(reloaded_document, "output.html", log, content_type: "text/html")
     end
 
     private
+
+      def reload
+        database.get(self.document['_id'])
+      end
 
       def database
         @database ||= Mustacci::Database.new

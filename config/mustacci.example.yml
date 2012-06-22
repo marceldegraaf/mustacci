@@ -5,8 +5,11 @@ github:
     password: '43bb10d6221f6c9d6534d34a1b993d9b486e973f'
 
 sinatra:
-  hostname: mustacci.example.com
+  hostname: 'mustacci.example.com'
 
 zmq:
   hostname: '127.0.0.1'
   port: 9000
+
+couchdb:
+  hostname: '0.0.0.0'

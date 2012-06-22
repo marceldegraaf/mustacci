@@ -33,14 +33,18 @@ helpers do
     slim :_build_status, layout: false, locals: { build: build }
   end
 
-  def faye_url
+  def faye_channel(channel_id)
+    slim :_faye_channel, layout: false, locals: { channel_id: channel_id }
+  end
+
+  def faye_uri
     "http://#{Mustacci.config.sinatra.hostname}:9393/faye"
   end
 
 end
 
 error do
-  "<p>HALP! The shit hit the fan in such a way that I don't know what to do. The error message:<br><br>" + request.env['sinatra.error'].message + "</p>"
+  "<p>HALP! The shit hit the fan in such a way that I don't know what to do. The error message:<br><br>" + request.env['sinatra.error'].message.inspect + "</p>"
 end
 
 get '/' do
