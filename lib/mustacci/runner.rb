@@ -47,7 +47,7 @@ module Mustacci
     end
 
     def build
-      @build = create_build(project.id)
+      @build ||= create_build(project.id)
     end
 
 
