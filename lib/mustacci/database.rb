@@ -1,9 +1,10 @@
+require 'mustacci'
 require 'couchrest'
 
 module Mustacci
   class Database
 
-    DATABASE = 'http://localhost:5984/mustacci'
+    DATABASE = "http://#{Mustacci.config.couchdb.hostname}:5984/mustacci"
 
     attr_reader :connection
 

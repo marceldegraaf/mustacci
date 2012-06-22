@@ -61,24 +61,46 @@ module Mustacci
 
       output = ''
 
-      PTY.spawn "./script/runner #{@build.id}" do |read, write, pid|
+      notify_websocket
 
-        read.each_line do |line|
-          line = clean(line)
-          write_to_websocket(line)
-          output << line
+      begin
+        PTY.spawn "./script/runner #{@build.id}" do |read, write, pid|
+          begin
+            line = ''
+
+            read.each_char do |char|
+              line << char
+
+              # Send output to web socket per line, not per character
+              if char == "\n"
+                line = clean(line)
+                write_to_websocket(line)
+                output << line
+                line = ''
+              end
+            end
+          rescue Errno::EIO
+            # This "error" is raised when the child process is done sending I/O
+            # to the pty. For some reason Ruby does not handle this standard
+            # behavior very well.
+            #
+            # See: http://stackoverflow.com/questions/1154846/continuously-read-from-stdout-of-external-process-in-ruby
+          end
         end
+      rescue PTY::ChildExited
+        info "The runner process started in Mustacci::Worker exited"
+      ensure
+        @build.complete! unless @build.completed?
+        @build.save_log(output)
       end
-
-      @build.save_log(output)
 
       info "Done building for build id: #{@build.id}"
     end
 
+    private
+
     def find_or_create_project
       project = database.view('projects/by_name', key: repository_name)
-      info repository_name
-      info project.inspect
 
       if project.any?
         project = project.first['value']
@@ -88,7 +110,21 @@ module Mustacci
         project
       end
 
-      Project.new(project)
+      Mustacci::Project.new(project)
+    end
+
+    def create_build(project_id)
+      build = {
+        type: 'build',
+        project_id: project_id,
+        payload_id: @payload.id,
+        success: false,
+        completed: false,
+        started_at: Time.now
+      }
+
+      database.save(build)
+      Mustacci::Build.load(build['_id'])
     end
 
     def create_build(project_id)
@@ -118,6 +154,10 @@ module Mustacci
 
     def socket
       @ws ||= URI.parse("http://#{configuration.hostname}:#{configuration.websocket_port}/faye")
+    end
+
+    def notify_websocket
+      write_to_websocket("START")
     end
 
     def channels
