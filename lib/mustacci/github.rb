@@ -7,6 +7,7 @@ module Mustacci
     def self.start
       set :mustacci, Mustacci.configuration
       set :port, Mustacci.configuration.github_port
+      set :environment, :production
       enable :logging
       enable_auth if Mustacci.configuration.github_auth
       run!
@@ -14,7 +15,9 @@ module Mustacci
 
     def self.enable_auth
       use Rack::Auth::Basic, "Mustacci" do |username, password|
-        [username, password] == [settings.mustacci.github_username, settings.mustacci.github_password]
+        ([username, password] == [settings.mustacci.github_username, settings.mustacci.github_password]).tap do |success|
+          logger.info "Invalid credentials sent from #{request.ip}"
+        end
       end
     end
 

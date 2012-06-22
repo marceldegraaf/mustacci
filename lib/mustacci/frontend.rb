@@ -13,6 +13,7 @@ module Mustacci
     def self.start
       set :mustacci, Mustacci.configuration
       set :port, Mustacci.configuration.frontend_port
+      set :environment, :production
       enable :logging
       run!
     end
