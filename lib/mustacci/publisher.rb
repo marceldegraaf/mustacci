@@ -12,28 +12,38 @@ module Mustacci
       @build = build
       @project = project
       @output = ''
+      @buffer = ''
     end
 
     def start
-      @line = ''
       notify_websocket
     end
 
-    def <<(char)
+    def <<(cha)
+      char = cha.dup
       $stderr.print char
       $stderr.flush
-      output << char
-      @line << char
-      # Send output to web socket per line, not per character
-      if char == "\n"
-        debug @line
-        clean!
-        write_to_websocket(@line)
-        @line = ''
-      end
+      buffer char
+      flush if should_buffer?
+    end
+
+    def should_buffer?
+      (Time.now - @last_buffered) > 0.15
+    end
+
+    def buffer(text)
+      @output << text
+      @buffer << text
+    end
+
+    def flush
+      text, @buffer = @buffer, ''
+      clean! text
+      write_to_websocket text
     end
 
     def write_to_websocket(line)
+      reset_timer
       begin
         channels.each do |channel|
           message = { channel: channel, data: { text: line } }
@@ -45,7 +55,11 @@ module Mustacci
     end
 
     def socket
-      @ws ||= URI.parse("http://#{configuration.hostname}:#{configuration.frontend_port}/faye")
+      @socket ||= URI.parse("http://#{configuration.hostname}:#{configuration.frontend_port}/faye")
+    end
+
+    def reset_timer
+      @last_buffered = Time.now
     end
 
     def notify_websocket
@@ -53,11 +67,11 @@ module Mustacci
       write_to_websocket("START")
     end
 
-    def clean!
-      @line.gsub!("\e[0m", '</span>')
-      @line.gsub!(/\e\[(\d+)m/, '<span class="color_\\1">')
-      @line.gsub!(/\s{4}/, '&nbsp;&nbsp;&nbsp;&nbsp;')
-      @line.gsub!("\r\n", '<br>')
+    def clean!(text)
+      text.gsub!(/\e?\[0m/, '</span>')
+      text.gsub!(/\e?\[(\d+)m/, '<span class="color_\\1">')
+      text.gsub!(/\s{4}/, '&nbsp;&nbsp;&nbsp;&nbsp;')
+      text.gsub!("\r\n", '<br>')
     end
 
     def channels

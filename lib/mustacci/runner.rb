@@ -23,6 +23,7 @@ module Mustacci
         publisher << char
       end
     ensure
+      publisher.flush
       finish
     end
 

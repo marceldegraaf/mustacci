@@ -80,7 +80,7 @@ module Mustacci
 
     def run_build
       exe! "git clean -fdx"
-      exe! "git fetch"
+      exe! "git fetch -q"
       exe! "git checkout -q #{sha}"
 
       if File.exist?(".mustacci")
