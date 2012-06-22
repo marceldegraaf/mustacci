@@ -1,0 +1,165 @@
+@import url(http://fonts.googleapis.com/css?family=Amaranth:700)
+@import "compass/css3/border-radius"
+
+@import "font-awesome"
+
+body
+  background: url('/images/background.png') repeat
+
+h1
+  font-family: 'Amaranth', 'Arial', sans-serif
+  font-size: 100px
+  line-height: 100px
+  color: #111
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1)
+  margin-top: 20px
+
+  span
+    float: right
+    display: block
+
+    &.tagline
+      font-size: 28px
+      line-height: 30px
+      color: #fff
+      text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.1)
+      margin-top: 43px
+      margin-right: 0px
+
+  a
+    color: #111
+    text-decoration: none
+
+    &:hover
+      color: #222
+      text-decoration: none
+
+#main
+  margin-top: 20px
+
+.panel
+  +border-radius(5px) 
+  background: #fff
+  margin-bottom: 15px
+  margin-left: 5px
+  padding: 10px
+
+  &.show
+    h2
+      font-size: 30px
+
+      small
+        margin-left: 30px
+
+    .details
+      p
+        font-family: "Courier"
+        font-size: 12px
+        color: #aaa
+
+        a
+          color: #666
+
+  h2
+    color: #222
+    line-height: 30px
+    margin-top: 6px
+    font-size: 20px
+    font-weight: 400
+    
+    a
+      color: #222
+      text-decoration: none
+      &:hover
+        color: #666
+
+  hr
+    width: 920px
+
+.project
+  .panel
+    padding: 0px
+    float: left
+    margin-left: 22px
+    width: 940px
+
+  p
+    font-size: 20px
+
+    &.status
+      margin-top: 16px
+
+  .icons
+    float: left
+    font-size: 20px
+    margin-top: 12px
+
+    a
+      font-size: 15px
+      color: #444
+      i
+        vertical-align: middle
+        margin-right: 5px
+
+      &:hover
+        color: #666
+        text-decoration: none
+
+  .btn
+    margin-top: 6px
+    margin-right: 10px
+    i
+      vertical-align: 0px
+      margin-right: 5px
+
+.build
+  h2
+    .status
+      margin-right: 30px
+      margin-top: 10px
+      font-size: 40px
+
+.icon-ok
+  color: green
+
+.icon-remove
+  color: red
+
+.icon-question-sign
+  color: #777
+
+#console
+  background: #222
+  color: #fff
+  font-family: 'Courier'
+  margin-left: 4px
+  margin-bottom: 20px
+  margin-top: 7px
+  padding: 10px
+  +border-radius(5px)
+
+  span
+    font-weight: bold
+
+  .color_33
+    color: yellow
+
+  .color_32
+    color: green
+
+  .color_31
+    color: red
+
+.builds
+  h2
+    margin-bottom: 20px
+  .row
+    padding: 10px 0px 10px 0px
+    border-bottom: 1px solid #eee
+    margin-left: 0px
+
+    .status
+      margin-left: 5px
+
+    &:last-child
+      border-bottom: 0px

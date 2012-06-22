@@ -1,16 +1,19 @@
+require 'mustacci/database'
 require 'mustacci/payload'
+require 'mustacci/project'
+require 'mustacci/build'
 
 module Mustacci
   class Runner
 
-    attr_reader :filename
+    attr_reader :build_id
 
-    def self.run!(filename)
-      new(filename).run!
+    def self.run!(build_id)
+      new(build_id).run!
     end
 
-    def initialize(filename)
-      @filename = filename
+    def initialize(build_id)
+      @build_id = build_id
     end
 
     def run!
@@ -25,7 +28,11 @@ module Mustacci
     end
 
     def payload
-      @payload ||= Payload.load(filename)
+      @payload ||= Payload.load(build.payload_id)
+    end
+
+    def build
+      @build ||= Mustacci::Build.load(build_id)
     end
 
     def log(message)
@@ -109,7 +116,8 @@ module Mustacci
     end
 
     def handle_success_build
-      exe "./script/success #{filename}"
+      build.success!
+      exe "./script/success #{ARGV.join(" ")}"
     end
 
     def now
