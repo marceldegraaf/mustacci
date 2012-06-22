@@ -117,7 +117,7 @@ module Mustacci
     end
 
     def socket
-      @ws ||= URI.parse("http://#{configuration.hostname}:9393/faye")
+      @ws ||= URI.parse("http://#{configuration.hostname}:#{configuration.websocket_port}/faye")
     end
 
     def channels
