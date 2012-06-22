@@ -3,6 +3,7 @@ require 'digest'
 require 'fileutils'
 require 'net/http'
 require 'json'
+require 'mustacci'
 require 'mustacci/database'
 require 'mustacci/payload'
 require 'mustacci/project'
@@ -11,7 +12,7 @@ require 'mustacci/build'
 module Mustacci
   class Worker
 
-    WS = "http://127.0.0.1:9393/faye"
+    WS = "http://#{Mustacci.config.sinatra.hostname}:9393/faye"
 
     attr_reader :data
 
