@@ -1,0 +1,47 @@
+- if @build.running?
+  javascript:
+    var client = new Faye.Client("#{faye_uri}");
+    var channel = [ '/build', "#{@build.id}" ].join('/');
+
+    var subscription = client.subscribe(channel, function(message) {
+      $('#console span.empty').remove();
+      var line = message.text;
+
+      // Show the line
+      $('#console').append(line);
+
+      // Scroll to the bottom
+      $(document).scrollTop($(document).height())
+    });
+
+.row
+  .span12
+    .build.panel.show
+      h2
+        a href="/projects/#{@project.id}"
+          = @project.name.capitalize
+        small
+          - if @build.completed?
+            = time(@build.completed_at)
+          - else
+            | Building...
+
+
+        .status.pull-right
+          == build_status @build
+
+      hr
+
+      .details
+        p Started at: #{time(@build.started_at)}
+        
+        - if @build.completed
+          p Completed at: #{time(@build.completed_at)}
+
+        p Time elapsed: #{@build.elapsed.to_i} seconds
+
+.row
+  .span12
+    #console
+      - if @build.completed?
+        == @build.output

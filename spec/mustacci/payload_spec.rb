@@ -1,8 +1,11 @@
+require 'digest'
+require 'json'
 require 'mustacci/payload'
 
 describe Mustacci::Payload do
 
-  let(:payload) { Mustacci::Payload.load("spec/fixtures/payload.json") }
+  let(:payload_id) { Digest::MD5.hexdigest('payload_id') }
+  let(:payload) { Mustacci::Payload.new(JSON.parse(File.read("spec/fixtures/payload.json")).merge(payload_id: payload_id)) }
   subject { payload }
 
   it "has a before" do
@@ -15,6 +18,10 @@ describe Mustacci::Payload do
 
   it "has a ref" do
     payload.ref.should == "refs/heads/master"
+  end
+
+  it "has a payload id" do
+    payload.payload_id.should == payload_id
   end
 
   it { should have(2).commits }

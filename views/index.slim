@@ -1,4 +1,21 @@
-html
-  body
-    h1 Mustacci
-    p Welcome!
+- @projects.each do |project|
+  .row
+    .project
+      .panel
+        .span1
+          p.status
+            - if project.builds.any?
+              == build_status project.builds.first
+            - else
+              i.icon-question-sign
+
+        .span4
+          h2
+            a href="/projects/#{project.id}"
+              = project.name.capitalize
+
+        .span4
+          .icons
+            a href="http://github.com/#{project.repo_name}" target="_blank"
+              i.icon-github
+              | View on Github
