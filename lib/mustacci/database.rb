@@ -10,10 +10,8 @@ module Mustacci
     class DatabaseDown < RuntimeError; end
 
     def self.reset
-      execute do
-        new.connection.delete!
-        new
-      end
+      new.reset!
+      new
     end
 
     def initialize
@@ -35,6 +33,12 @@ module Mustacci
         rescue RestClient::ResourceNotFound
           []
         end
+      end
+    end
+
+    def reset!
+      execute do
+        connection.delete!
       end
     end
 
