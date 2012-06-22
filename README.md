@@ -27,24 +27,26 @@ fun!
 
 * Ruby 1.9.3
 * ZeroMQ
+* CouchDB
 
 ## Installation
 
 Install Ruby.
 Install ZeroMQ.
+Install CouchDB.
 
 Install the ruby dependencies:
 
     gem install bundler
     bundle install
 
-Start the listener:
+Put the configuration file in place and edit it if so desired
 
-    ./script/github
+    cp config/mustacci.example.yml config/mustacci.yml
 
-Start a worker:
+Start all the things:
 
-    ./script/worker
+    foreman start
 
 Enter the URL of the listener as web service hook in Github.
 For example: `http://mustacci.example.com/github`.
