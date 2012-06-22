@@ -11,21 +11,24 @@ module Mustacci
     def initialize(build, project)
       @build = build
       @project = project
+      @output = ''
     end
 
     def start
       @line = ''
-      @output = ''
       notify_websocket
     end
 
-    def <<(info)
-      @line << info
+    def <<(char)
+      $stderr.print char
+      $stderr.flush
+      output << char
+      @line << char
       # Send output to web socket per line, not per character
-      if info == "\n"
+      if char == "\n"
+        debug @line
         clean!
         write_to_websocket(@line)
-        output << @line
         @line = ''
       end
     end
@@ -42,10 +45,11 @@ module Mustacci
     end
 
     def socket
-      @ws ||= URI.parse("http://#{configuration.hostname}:#{configuration.websocket_port}/faye")
+      @ws ||= URI.parse("http://#{configuration.hostname}:#{configuration.frontend_port}/faye")
     end
 
     def notify_websocket
+      info "Posting to #{socket}"
       write_to_websocket("START")
     end
 

@@ -28,9 +28,6 @@ module Mustacci
     # The port on which the frontend will listen. Defaults to 8080.
     attr_accessor :frontend_port
 
-    # The port on which the websocket will listen. Defaults to 9393.
-    attr_accessor :websocket_port
-
     # Where the 0MQ connects to. Defaults to "tcp://127.0.0.1:9000"
     attr_accessor :queue
 
@@ -86,7 +83,6 @@ module Mustacci
     def initialize
       @frontend_port     = 8080
       @github_port       = 8081
-      @websocket_port    = 9393
       @on_success        = Proc.new { }
       @on_failed         = Proc.new { }
       @workers           = 1

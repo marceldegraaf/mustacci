@@ -37,6 +37,10 @@ module Mustacci
     def exe(command)
       log command
       system command
+    end
+
+    def exe!(command)
+      exe command
       raise BuildFailed, "Command failed: #{command.inspect}" if $?.to_i != 0
     end
 
@@ -75,29 +79,29 @@ module Mustacci
     end
 
     def run_build
-      exe "git clean -fdx"
-      exe "git fetch"
-      exe "git checkout -q #{sha}"
+      exe! "git clean -fdx"
+      exe! "git fetch"
+      exe! "git checkout -q #{sha}"
 
       if File.exist?(".mustacci")
-        exe "./.mustacci"
+        exe! "./.mustacci"
       elsif File.exist?("Gemfile")
-        exe "gem install bundler"
-        exe "bundle install"
-        exe "bundle exec rake"
+        exe! "gem install bundler"
+        exe! "bundle install"
+        exe! "bundle exec rake"
       else
-        exe "rake"
+        exe! "rake"
       end
     end
 
     def create_success_note
       exe "git notes --ref=Mustacci add -fm 'Build successful! #{duration}' #{sha}"
-      exe "git push origin refs/notes/Mustacci"
+      exe "git push -fq origin refs/notes/Mustacci"
     end
 
     def create_fail_note
       exe "git notes --ref=Mustacci add -fm 'Build failed! #{duration}' #{sha}"
-      exe "git push -f origin refs/notes/Mustacci"
+      exe "git push -fq origin refs/notes/Mustacci"
     end
 
     def handle_failed_build(error)
@@ -106,13 +110,13 @@ module Mustacci
     rescue BuildFailed => error
       $stderr.puts "\e[31mEven handling failed build failed.\e[0m"
     ensure
-      exe "./script/failed #{ARGV.join(" ")}"
+      # exe "./script/failed #{ARGV.join(" ")}"
       exit 1
     end
 
     def handle_success_build
       build.success!
-      exe "./script/success #{ARGV.join(" ")}"
+      # exe "./script/success #{ARGV.join(" ")}"
     end
 
     def now

@@ -1,4 +1,3 @@
-require 'pty'
 require 'zmq'
 require 'mustacci/runner'
 

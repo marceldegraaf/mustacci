@@ -1,4 +1,5 @@
 require 'mustacci/publisher'
+require 'mustacci/executor'
 
 module Mustacci
   class Runner
@@ -18,30 +19,14 @@ module Mustacci
     def process
       info "Starting build. Build id: #{build.id}"
       publisher.start
-      build
+      Executor.call(command) do |char|
+        publisher << char
+      end
     ensure
       finish
     end
 
     private
-
-    def build
-      PTY.spawn command do |read, write, pid|
-        begin
-          read.each_char do |char|
-            publisher << char
-          end
-        rescue Errno::EIO
-          # This "error" is raised when the child process is done sending I/O
-          # to the pty. For some reason Ruby does not handle this standard
-          # behavior very well.
-          #
-          # See: http://stackoverflow.com/questions/1154846/continuously-read-from-stdout-of-external-process-in-ruby
-        end
-      end
-    rescue PTY::ChildExited
-      warn "The runner process started in Mustacci::Worker exited"
-    end
 
     def command
       "bundle exec mustacci build #{build.id.inspect}"

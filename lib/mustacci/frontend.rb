@@ -48,7 +48,7 @@ module Mustacci
       end
 
       def faye_uri
-        "http://#{settings.mustacci.hostname}:#{settings.mustacci.websocket_port}/faye"
+        "http://#{settings.mustacci.hostname}:#{settings.mustacci.frontend_port}/faye"
       end
 
     end

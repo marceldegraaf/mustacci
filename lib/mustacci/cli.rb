@@ -47,6 +47,7 @@ module Mustacci
 
     desc "build ID", "Runs the build called ARG"
     def build(id)
+      require 'mustacci/builder'
       load_configuration!
       Mustacci.configuration.logger.info "Building #{id}"
       Builder.run!(id)
