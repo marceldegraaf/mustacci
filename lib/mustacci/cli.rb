@@ -1,6 +1,7 @@
 require 'mustacci'
 require 'thor'
 require 'fileutils'
+ENV['RACK_ENV'] = 'production'
 
 module Mustacci
   class CLI < Thor
@@ -49,8 +50,14 @@ module Mustacci
     def build(id)
       require 'mustacci/builder'
       load_configuration!
-      Mustacci.configuration.logger.info "Building #{id}"
       Builder.run!(id)
+    end
+
+    desc "seed", "Creates the views in the database"
+    def seed
+      require 'mustacci/seed'
+      load_configuration!
+      Seed.call
     end
 
     private

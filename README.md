@@ -17,7 +17,7 @@ It's not finished yet. Feel free to help us out, by contacting us.
 
 ## Why Mustacci?
 
-We were fed up with Jenkins and we couldn't wait for Travis Pro.  We're not
+We were fed up with Jenkins and we couldn't wait for Travis Pro. We're not
 trying to compete with Travis, we believe it's an awesome service, run by
 awesome people, and getting more awesome everyday. But we wanted something
 quick and local, so we rolled our own. Also: hacking on a CI server is a lot of
@@ -36,19 +36,24 @@ fun!
 3. Install CouchDB.
 4. Install Mustacci:
 
-    gem install mustacci
+      gem install mustacci
 
-5. Generate configuration (TODO)
+5. Generate configuration
 
-    mustacci install
+      mustacci install /path/to/your/mustacci/config
+
+6. After configuring the generated files, seed the database
+
+      bundle exec mustacci seed
 
 6. Start Mustacci
 
-    mustacci start
+      bundle exec mustacci start
 
 ## Configuration
 
 The `mustacci install` command generated a configuration file.
+Loot into that for
 
 ## The build process
 
@@ -67,6 +72,6 @@ Installing ZeroMQ and CouchDB is easy:
 
 Then you can send a dummy post receive hook:
 
-    curl -d "payload=`cat test/payload.json`" http://localhost:4567/github
+    curl -d "payload=`cat test/payload.json`" http://localhost:8081/github
 
 Edit `test/payload.json` to try some different kinds of payloads.
