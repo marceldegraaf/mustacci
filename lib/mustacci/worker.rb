@@ -31,6 +31,8 @@ module Mustacci
 
       output = ''
 
+      notify_websocket
+
       begin
         PTY.spawn "./script/runner #{@build.id}" do |read, write, pid|
           begin
@@ -104,6 +106,10 @@ module Mustacci
         rescue Errno::ECONNREFUSED
           Mustacci.log line
         end
+      end
+
+      def notify_websocket
+        write_to_websocket("START")
       end
 
       def socket

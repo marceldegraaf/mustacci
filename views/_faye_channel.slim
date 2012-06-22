@@ -6,9 +6,13 @@ javascript:
     $('#console span.empty').remove();
     var line = message.text;
 
-    // Show the line
-    $('#console').append(line);
+    if(line == "START") {
+      $("#console").empty();
+    } else {
+      // Show the line
+      $('#console').append(line);
 
-    // Scroll to the bottom
-    $(document).scrollTop($(document).height())
+      // Scroll to the bottom
+      $(document).scrollTop($(document).height());
+    }
   });
