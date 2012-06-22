@@ -1,6 +1,6 @@
 require 'ostruct'
 require 'time'
-require './lib/mustacci/database'
+require 'mustacci/database'
 
 module Mustacci
   class Build < OpenStruct
@@ -35,7 +35,7 @@ module Mustacci
     end
 
     def output
-      database.connection.fetch_attachment(self.document, "output.html")
+      database.connection.fetch_attachment(self.document, log_filename)
     end
 
     def running?
@@ -90,21 +90,24 @@ module Mustacci
     end
 
     def save_log(log)
-      # We need to reload the document to prevent a 409 Conflict error
-      reloaded_document = reload
-
-      database.connection.put_attachment(reloaded_document, "output.html", log, content_type: "text/html")
+      database.connection.put_attachment(reload, log_filename, log, content_type: "text/html")
     end
 
     private
 
-      def reload
-        database.get(self.document['_id'])
-      end
+    # We need to reload the document to prevent
+    # a 409 Conflict error in CouchDB
+    def reload
+      database.get(self.document['_id'])
+    end
 
-      def database
-        @database ||= Mustacci::Database.new
-      end
+    def database
+      @database ||= Mustacci::Database.new
+    end
+
+    def log_filename
+      "output.html"
+    end
 
   end
 end
