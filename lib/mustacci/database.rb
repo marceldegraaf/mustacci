@@ -4,7 +4,6 @@ require 'couchrest'
 module Mustacci
   class Database
 
-    DATABASE = "http://#{Mustacci.config.couchdb.hostname}:5984/mustacci"
 
     attr_reader :connection
 
@@ -15,8 +14,12 @@ module Mustacci
       new
     end
 
+    def database_url
+      "http://#{Mustacci.config.couchdb.hostname}:5984/mustacci"
+    end
+
     def initialize
-      @connection = CouchRest.database!(DATABASE)
+      @connection = CouchRest.database!(database_url)
     end
 
     def get(id)
