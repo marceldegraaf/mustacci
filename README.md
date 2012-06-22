@@ -44,6 +44,10 @@ Put the configuration file in place and edit it if so desired
 
     cp config/mustacci.example.yml config/mustacci.yml
 
+Seed the database with default CouchDB views (this will reset the database!)
+
+    rake db:seed
+
 Start all the things:
 
     foreman start
