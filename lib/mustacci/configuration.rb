@@ -80,6 +80,9 @@ module Mustacci
 
     attr_reader :success_callbacks, :failed_callbacks
 
+    # The location of the database. Defaults to "http://127.0.0.1:5984/mustacci"
+    attr_reader :couchdb
+
     def initialize
       @frontend_port     = 8080
       @github_port       = 8081
@@ -91,6 +94,8 @@ module Mustacci
       @queue             = "tcp://127.0.0.1:9001"
       @success_callbacks = []
       @failed_callbacks  = []
+      @couchdb           = "http://127.0.0.1:5984/mustacci"
+      @hostname = "localhost"
     end
 
     # Sets the github username and password

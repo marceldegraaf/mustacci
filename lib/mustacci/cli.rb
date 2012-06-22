@@ -6,6 +6,8 @@ module Mustacci
   class CLI < Thor
     include FileUtils
 
+    class_option :directory, :default => nil, :desc => "The directory that the configuration lives in"
+
     desc "install DIRECTORY", "Generates the Mustacci configuration"
     def install(directory)
       mkdir_p directory
@@ -19,7 +21,6 @@ module Mustacci
       require 'foreman'
       require 'foreman/cli'
       procfile = File.expand_path("../procfile.yml", __FILE__)
-      directory = Dir.pwd
       Foreman::CLI.start(["start", "--procfile", procfile, "--app-root", directory])
     end
 
@@ -27,34 +28,39 @@ module Mustacci
     def github
       require 'mustacci/github'
       load_configuration!
-      Github.start(Mustacci.configuration)
+      Github.start
     end
 
     desc "worker", "Starts just one worker"
     def worker
       require 'mustacci/worker'
       load_configuration!
-      Worker.start(Mustacci.configuration)
+      Worker.start
     end
 
     desc "frontend", "Starts just the frontend and websocket server"
     def frontend
       require 'mustacci/frontend'
       load_configuration!
-      Frontend.start(Mustacci.configuration)
+      Frontend.start
     end
 
     desc "build ID", "Runs the build called ARG"
     def build(id)
       load_configuration!
       Mustacci.configuration.logger.info "Building #{id}"
+      Builder.run!(id)
     end
 
     private
 
     def load_configuration!
-      config_file = File.join(Dir.pwd, "config.rb")
+      config_file = File.join(directory, "config.rb")
       load config_file if File.exist?(config_file)
+    end
+
+    def directory
+      options.directory || Dir.pwd
     end
 
   end

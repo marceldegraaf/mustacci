@@ -4,11 +4,11 @@ require 'zmq'
 module Mustacci
   class Github < Sinatra::Base
 
-    def self.start(configuration)
-      set :mustacci, configuration
-      set :port, configuration.github_port
+    def self.start
+      set :mustacci, Mustacci.configuration
+      set :port, Mustacci.configuration.github_port
       enable :logging
-      enable_auth if configuration.github_auth
+      enable_auth if Mustacci.configuration.github_auth
       run!
     end
 

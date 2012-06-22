@@ -4,7 +4,6 @@ require 'couchrest'
 module Mustacci
   class Database
 
-
     attr_reader :connection
 
     class DatabaseDown < RuntimeError; end
@@ -15,7 +14,7 @@ module Mustacci
     end
 
     def database_url
-      "http://#{Mustacci.config.couchdb.hostname}:5984/mustacci"
+      Mustacci.configuration.couchdb
     end
 
     def initialize
@@ -48,11 +47,11 @@ module Mustacci
 
     private
 
-      def execute(&block)
-        yield
-      rescue Errno::ECONNREFUSED
-        raise DatabaseDown, 'CouchDB seems to be down.'
-      end
+    def execute(&block)
+      yield
+    rescue Errno::ECONNREFUSED
+      raise DatabaseDown, 'CouchDB seems to be down.'
+    end
 
 
   end

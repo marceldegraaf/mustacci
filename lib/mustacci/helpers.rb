@@ -1,8 +1,21 @@
 module Mustacci
   module Helpers
 
-    def log(message)
-      $stdout.puts "\e[33m[#{Time.now}] #{message}\e[0m"
+    def info(*args)
+      configuration.logger.info(*args)
+    end
+
+    def warn(*args)
+      configuration.logger.warn(*args)
+    end
+
+    def debug(*args)
+      configuration.logger.debug(*args)
+    end
+    alias debug puts
+
+    def configuration
+      Mustacci.configuration
     end
 
   end

@@ -2,7 +2,7 @@
 require "bundler/gem_tasks"
 
 require 'rspec/core/rake_task'
-require './lib/mustacci/database'
+require 'mustacci/database'
 
 RSpec::Core::RakeTask.new(:spec)
 task :default => :spec

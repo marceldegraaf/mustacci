@@ -10,9 +10,9 @@ require 'faye'
 module Mustacci
   class Frontend < Sinatra::Base
 
-    def self.start(configuration)
-      set :mustacci, configuration
-      set :port, configuration.frontend_port
+    def self.start
+      set :mustacci, Mustacci.configuration
+      set :port, Mustacci.configuration.frontend_port
       enable :logging
       run!
     end
@@ -43,7 +43,11 @@ module Mustacci
         slim :_build_status, layout: false, locals: { build: build }
       end
 
-      def faye_url
+      def faye_channel(channel_id)
+        slim :_faye_channel, layout: false, locals: { channel_id: channel_id }
+      end
+
+      def faye_uri
         "http://#{settings.mustacci.hostname}:#{settings.mustacci.websocket_port}/faye"
       end
 

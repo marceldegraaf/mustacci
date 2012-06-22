@@ -1,6 +1,10 @@
+require 'mustacci/version'
 require 'mustacci/configuration'
 require 'mustacci/helpers'
-require 'mustacci/version'
+require 'mustacci/database'
+require 'mustacci/payload'
+require 'mustacci/project'
+require 'mustacci/build'
 
 module Mustacci
 

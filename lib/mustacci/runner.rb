@@ -1,130 +1,113 @@
-require 'mustacci/database'
-require 'mustacci/payload'
-require 'mustacci/project'
-require 'mustacci/build'
+require 'mustacci/publisher'
 
 module Mustacci
   class Runner
 
-    attr_reader :build_id
+    include Helpers
 
-    def self.run!(build_id)
-      new(build_id).run!
+    def self.call(data)
+      new(data).process
     end
 
-    def initialize(build_id)
-      @build_id = build_id
+    attr_reader :data
+
+    def initialize(data)
+      @data = data
     end
 
-    def run!
-      clone_repository
-      in_repo do
-        time { run_build }
-        create_success_note
+    def process
+      info "Starting build. Build id: #{build.id}"
+      publisher.start
+      build
+    ensure
+      finish
+    end
+
+    private
+
+    def build
+      PTY.spawn command do |read, write, pid|
+        begin
+          read.each_char do |char|
+            publisher << char
+          end
+        rescue Errno::EIO
+          # This "error" is raised when the child process is done sending I/O
+          # to the pty. For some reason Ruby does not handle this standard
+          # behavior very well.
+          #
+          # See: http://stackoverflow.com/questions/1154846/continuously-read-from-stdout-of-external-process-in-ruby
+        end
       end
-      handle_success_build
-    rescue BuildFailed => error
-      handle_failed_build error
+    rescue PTY::ChildExited
+      warn "The runner process started in Mustacci::Worker exited"
+    end
+
+    def command
+      "bundle exec mustacci build #{build.id.inspect}"
+    end
+
+    def finish
+      build.complete! unless build.completed?
+      build.save_log(publisher.output)
+      info "Done building for build id: #{build.id}"
     end
 
     def payload
-      @payload ||= Payload.load(build.payload_id)
+      @payload ||= Payload.save(data)
+    end
+
+    def project
+      @project ||= find_or_create_project
     end
 
     def build
-      @build ||= Mustacci::Build.load(build_id)
+      @build = create_build(project.id)
     end
 
-    def log(message)
-      $stderr.puts "\e[33m[#{now}] #{message}\e[0m"
-    end
 
-    def exe(command)
-      log command
-      system command
-      raise BuildFailed, "Command failed: #{command.inspect}" if $?.to_i != 0
-    end
+    def find_or_create_project
+      project = database.view('projects/by_name', key: repository_name)
 
-    def in_repo
-      Dir.chdir path do
-        yield
-      end
-    end
-
-    def time
-      start = now
-      yield
-    ensure
-      @duration = now - start
-    end
-
-    def duration
-      duration = "%.3f seconds" % @duration
-      "(#{now}, duration: #{duration})"
-    end
-
-    def path
-      "tmp/workspace/#{payload.repository.name}"
-    end
-
-    def sha
-      payload.after
-    end
-
-    def url
-      payload.repository.url
-    end
-
-    def clone_repository
-      exe "git clone #{url} #{path}" unless File.exist?(path)
-    end
-
-    def run_build
-      exe "git clean -fdx"
-      exe "git fetch"
-      exe "git checkout -q #{sha}"
-
-      if File.exist?(".mustacci")
-        exe "./.mustacci"
-      elsif File.exist?("Gemfile")
-        exe "gem install bundler"
-        exe "bundle install"
-        exe "bundle exec rake"
+      if project.any?
+        project = project.first['value']
       else
-        exe "rake"
+        project = {
+          type: 'project',
+          name: payload.repository.name,
+          owner: payload.repository.owner.name
+        }
+        database.save( project )
+        project
       end
+
+      Mustacci::Project.new(project)
     end
 
-    def create_success_note
-      exe "git notes --ref=Mustacci add -fm 'Build successful! #{duration}' #{sha}"
-      exe "git push origin refs/notes/Mustacci"
+    def create_build(project_id)
+      build = {
+        type: 'build',
+        project_id: project_id,
+        payload_id: @payload.id,
+        success: false,
+        completed: false,
+        started_at: Time.now
+      }
+
+      database.save(build)
+      Mustacci::Build.load(build['_id'])
     end
 
-    def create_fail_note
-      exe "git notes --ref=Mustacci add -fm 'Build failed! #{duration}' #{sha}"
-      exe "git push -f origin refs/notes/Mustacci"
+    def repository_name
+      [ payload.repository.owner.name, payload.repository.name ].join('/')
     end
 
-    def handle_failed_build(error)
-      $stderr.puts "\e[31m#{error}\e[0m"
-      in_repo { create_fail_note }
-    rescue BuildFailed => error
-      $stderr.puts "\e[31mEven handling failed build failed.\e[0m"
-    ensure
-      exe "./script/failed #{ARGV.join(" ")}"
-      exit 1
+    def database
+      @database ||= Database.new
     end
 
-    def handle_success_build
-      build.success!
-      exe "./script/success #{ARGV.join(" ")}"
-    end
-
-    def now
-      Time.now
-    end
-
-    class BuildFailed < RuntimeError
+    def publisher
+      @publisher ||= Publisher.new(build, project)
     end
 
   end
