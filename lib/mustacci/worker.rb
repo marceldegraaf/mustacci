@@ -105,7 +105,11 @@ module Mustacci
       if project.any?
         project = project.first['value']
       else
-        project = { type: 'project', name: @payload.repository.name, owner: @payload.repository.owner.name }
+        project = { 
+          type: 'project',
+          name: @payload.repository.name, 
+          owner: @payload.repository.owner.name
+        }
         database.save( project )
         project
       end
@@ -125,20 +129,6 @@ module Mustacci
 
       database.save(build)
       Mustacci::Build.load(build['_id'])
-    end
-
-    def create_build(project_id)
-      build = {
-        type: 'build',
-        project_id: project_id,
-        payload_id: @payload.id,
-        success: false,
-        completed: false,
-        started_at: Time.now
-      }
-
-      database.save(build)
-      Build.new(build)
     end
 
     def write_to_websocket(line)
@@ -174,8 +164,8 @@ module Mustacci
     def clean(line)
       line.gsub!("\e[0m", '</span>')
       line.gsub!(/\e\[(\d+)m/, '<span class="color_\\1">')
-        line.gsub!(/\s{4}/, '&nbsp;&nbsp;&nbsp;&nbsp;')
-        line.gsub!("\r\n", '<br>')
+      line.gsub!(/\s{4}/, '&nbsp;&nbsp;&nbsp;&nbsp;')
+      line.gsub!("\r\n", '<br>')
     end
 
     def database
