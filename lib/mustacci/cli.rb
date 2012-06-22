@@ -1,67 +1,60 @@
 require 'mustacci'
-require 'mustacci/github'
-require 'mustacci/frontend'
-require 'mustacci/worker'
 require 'thor'
-require 'foreman'
-require 'foreman/cli'
+require 'fileutils'
 
 module Mustacci
   class CLI < Thor
+    include FileUtils
 
-    desc "install", "Generates the Mustacci configuration"
-    def install
-      puts "Installing Mustacci... hold on!"
-      # Should write a Gemfile and a mustacci config
-      # also generate empty directories, for log and workspace
+    desc "install DIRECTORY", "Generates the Mustacci configuration"
+    def install(directory)
+      mkdir_p directory
+      source_root = File.expand_path('../../../templates', __FILE__)
+      cp File.join(source_root, 'config.rb'), File.join(directory, 'config.rb')
+      cp File.join(source_root, 'Gemfile'), File.join(directory, 'Gemfile')
     end
 
     desc "start", "Starts up Mustacci servers"
     def start
+      require 'foreman'
+      require 'foreman/cli'
+      procfile = File.expand_path("../procfile.yml", __FILE__)
+      directory = Dir.pwd
       Foreman::CLI.start(["start", "--procfile", procfile, "--app-root", directory])
     end
 
-    desc "github", "Starts the Github push notification listener"
+    desc "github", "Starts just the Github push notification listener"
     def github
-      load_configuration
-      Github.start(configuration)
+      require 'mustacci/github'
+      load_configuration!
+      Github.start(Mustacci.configuration)
     end
 
-    desc "worker", "Starts a worker"
+    desc "worker", "Starts just one worker"
     def worker
-      load_configuration
-      Worker.start(configuration)
+      require 'mustacci/worker'
+      load_configuration!
+      Worker.start(Mustacci.configuration)
     end
 
-    desc "frontend", "Starts the frontend and websocket"
+    desc "frontend", "Starts just the frontend and websocket server"
     def frontend
-      load_configuration
-      Frontend.start(configuration)
+      require 'mustacci/frontend'
+      load_configuration!
+      Frontend.start(Mustacci.configuration)
     end
 
-    desc "build ID", "Runs a build"
+    desc "build ID", "Runs the build called ARG"
     def build(id)
-      load_configuration
-      configuration.logger "This needs to be done still"
+      load_configuration!
+      Mustacci.configuration.logger.info "Building #{id}"
     end
 
     private
 
-    def procfile
-      File.expand_path("../procfile.yml", __FILE__)
-    end
-
-    def directory
-      @directory ||= Dir.pwd
-    end
-
-    def load_configuration
-      config_file = File.join(directory, "config.rb")
+    def load_configuration!
+      config_file = File.join(Dir.pwd, "config.rb")
       load config_file if File.exist?(config_file)
-    end
-
-    def configuration
-      Mustacci.configuration
     end
 
   end

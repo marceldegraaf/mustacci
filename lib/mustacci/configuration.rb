@@ -48,7 +48,9 @@ module Mustacci
     #       mail build.author
     #     end
     #   end
-    attr_accessor :on_success
+    def on_success(&block)
+      success_callbacks << block
+    end
 
     # Specify a block to determine what should happen on a failed build.
     #
@@ -61,7 +63,9 @@ module Mustacci
     #       mail build.author
     #     end
     #   end
-    attr_accessor :on_failed
+    def on_failed(&block)
+      failed_callbacks << block
+    end
 
     # How many workers do you want? Defaults to 1.
     attr_accessor :workers
@@ -74,15 +78,19 @@ module Mustacci
     #   config.logger = Logger.new("mustacci.log")
     attr_accessor :logger
 
+    attr_reader :success_callbacks, :failed_callbacks
+
     def initialize
-      @frontend_port  = 8080
-      @github_port    = 8081
-      @websocket_port = 9393
-      @on_success     = Proc.new { }
-      @on_failed      = Proc.new { }
-      @workers        = 1
-      @logger         = Logger.new($stderr)
-      @queue          = "tcp://127.0.0.1:9001"
+      @frontend_port     = 8080
+      @github_port       = 8081
+      @websocket_port    = 9393
+      @on_success        = Proc.new { }
+      @on_failed         = Proc.new { }
+      @workers           = 1
+      @logger            = Logger.new($stderr)
+      @queue             = "tcp://127.0.0.1:9001"
+      @success_callbacks = []
+      @failed_callbacks  = []
     end
 
     # Sets the github username and password

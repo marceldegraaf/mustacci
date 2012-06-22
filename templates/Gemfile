@@ -1,0 +1,6 @@
+source "http://rubygems.org"
+
+gem 'mustacci'
+
+# Add Campfire support
+# gem 'blaze'
