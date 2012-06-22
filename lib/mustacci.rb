@@ -1,18 +1,15 @@
-require 'yaml'
-require 'hashie/mash'
+require 'mustacci/configuration'
+require 'mustacci/helpers'
+require 'mustacci/version'
 
 module Mustacci
 
-  class << self
+  def self.configuration
+    @configuration ||= Configuration.new
+  end
 
-    def log(message)
-      $stdout.puts "\e[33m[#{Time.now}] #{message}\e[0m"
-    end
-
-    def config
-      @configuration ||= Hashie::Mash.new(YAML.load(File.open('./config/mustacci.yml')))
-    end
-
+  def self.configure
+    yield configuration
   end
 
 end
