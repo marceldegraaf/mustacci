@@ -18,7 +18,6 @@ module Mustacci
 
     desc "start", "Starts up Mustacci servers"
     def start
-      puts "Starting up Mustacci..."
       Foreman::CLI.start(["start", "--procfile", procfile, "--app-root", directory])
     end
 
@@ -38,6 +37,12 @@ module Mustacci
     def frontend
       load_configuration
       Frontend.start(configuration)
+    end
+
+    desc "build ID", "Runs a build"
+    def build(id)
+      load_configuration
+      configuration.logger "This needs to be done still"
     end
 
     private
