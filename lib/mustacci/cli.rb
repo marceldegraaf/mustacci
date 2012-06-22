@@ -5,16 +5,19 @@ ENV['RACK_ENV'] = 'production'
 
 module Mustacci
   class CLI < Thor
-    include FileUtils
+    include Thor::Actions
 
     class_option :directory, :default => nil, :desc => "The directory that the configuration lives in"
 
+    def self.source_root
+      File.expand_path('../../../templates', __FILE__)
+    end
+
     desc "install DIRECTORY", "Generates the Mustacci configuration"
     def install(directory)
-      mkdir_p directory
-      source_root = File.expand_path('../../../templates', __FILE__)
-      cp File.join(source_root, 'config.rb'), File.join(directory, 'config.rb')
-      cp File.join(source_root, 'Gemfile'), File.join(directory, 'Gemfile')
+      self.destination_root = directory
+      copy_file "config.rb"
+      copy_file "Gemfile"
     end
 
     desc "start", "Starts up Mustacci servers"
@@ -55,9 +58,11 @@ module Mustacci
 
     desc "seed", "Creates the views in the database"
     def seed
-      require 'mustacci/seed'
-      load_configuration!
-      Seed.call
+      if yes?("This will erase all data from the database. Are you sure?")
+        require 'mustacci/seed'
+        load_configuration!
+        Seed.call
+      end
     end
 
     private
