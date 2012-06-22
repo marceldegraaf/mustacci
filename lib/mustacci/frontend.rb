@@ -43,6 +43,10 @@ module Mustacci
         slim :_build_status, layout: false, locals: { build: build }
       end
 
+      def faye_url
+        "http://#{settings.mustacci.hostname}:9393/faye"
+      end
+
     end
 
     error do

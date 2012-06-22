@@ -6,7 +6,7 @@ require 'sinatra'
 require 'zmq'
 require 'mustacci'
 
-QUEUE = "tcp://127.0.0.1:9000"
+QUEUE = "tcp://#{Mustacci.config.zmq.hostname}:#{Mustacci.config.zmq.port}"
 
 puts "** Will send to build queue at #{QUEUE}"
 

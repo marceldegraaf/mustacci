@@ -1,6 +1,6 @@
 - if @build.running?
   javascript:
-    var client = new Faye.Client('http://localhost:9393/faye');
+    var client = new Faye.Client("#{faye_uri}");
     var channel = [ '/build', "#{@build.id}" ].join('/');
 
     var subscription = client.subscribe(channel, function(message) {

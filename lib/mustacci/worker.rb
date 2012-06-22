@@ -1,6 +1,7 @@
 require 'pty'
 require 'net/http'
 require 'zmq'
+require 'mustacci'
 require 'mustacci/database'
 require 'mustacci/payload'
 require 'mustacci/project'
@@ -8,8 +9,6 @@ require 'mustacci/build'
 
 module Mustacci
   class Worker
-
-    WS = "http://127.0.0.1:9393/faye"
 
     def self.start(configuration)
       new(configuration).run!
@@ -118,7 +117,7 @@ module Mustacci
     end
 
     def socket
-      @ws ||= URI.parse(WS)
+      @ws ||= URI.parse("http://#{configuration.hostname}:9393/faye")
     end
 
     def channels

@@ -4,6 +4,7 @@ require 'rubygems'
 require 'compass'
 require 'sinatra'
 require 'slim'
+require 'mustacci'
 require 'mustacci/database'
 require 'mustacci/build'
 require 'mustacci/project'
@@ -30,6 +31,10 @@ helpers do
 
   def build_status(build)
     slim :_build_status, layout: false, locals: { build: build }
+  end
+
+  def faye_url
+    "http://#{Mustacci.config.sinatra.hostname}:9393/faye"
   end
 
 end
