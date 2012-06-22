@@ -31,29 +31,26 @@ fun!
 
 ## Installation
 
-Install Ruby.
-Install ZeroMQ.
-Install CouchDB.
+1. Install Ruby.
+2. Install ZeroMQ.
+3. Install CouchDB.
+4. Install Mustacci:
 
-Install the ruby dependencies:
+    gem install mustacci
 
-    gem install bundler
-    bundle install
+5. Generate configuration (TODO)
 
-Put the configuration file in place and edit it if so desired
+    mustacci install
 
-    cp config/mustacci.example.yml config/mustacci.yml
+6. Start Mustacci
 
-Start all the things:
+    mustacci start
 
-    foreman start
+## Configuration
 
-Enter the URL of the listener as web service hook in Github.
-For example: `http://mustacci.example.com/github`.
+The `mustacci install` command generated a configuration file.
 
-## Customizing
-
-### The build process
+## The build process
 
 You are responsible for keeping a script that does your build inside your
 repository. You need to create an executable file called `.mustacci` in the
@@ -62,17 +59,11 @@ own: install dependencies, create and migrate the database, etc.
 
 If no `.mustacci` is found, it will try to run `rake`. No guarantees though.
 
-### When builds fail or succeed
-
-To customize what happens when a build fails or succeeds, edit `script/failed`
-and `script/success`, respectively. Both files are given a filename as
-argument. You can read that file for information about the commits done.
-
 ## Development installation OSX
 
-Install ZeroMQ:
+Installing ZeroMQ and CouchDB is easy:
 
-    brew install zmq
+    brew install zmq couchdb
 
 Then you can send a dummy post receive hook:
 
