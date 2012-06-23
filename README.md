@@ -21,7 +21,7 @@ We were fed up with Jenkins and we couldn't wait for Travis Pro. We're not
 trying to compete with Travis, we believe it's an awesome service, run by
 awesome people, and getting more awesome everyday. But we wanted something
 quick and local, so we rolled our own. Also: hacking on a CI server is a lot of
-fun!
+fun! It turned out it wasn't as simple as we thought, but definitely fun.
 
 ## Requirements
 
@@ -31,29 +31,39 @@ fun!
 
 ## Installation
 
-1. Install Ruby.
-2. Install ZeroMQ.
-3. Install CouchDB.
-4. Install Mustacci:
+Install the gem:
 
-      gem install mustacci
+``` shell
+gem install mustacci
+```
 
-5. Generate configuration
+And run the installer to generate the configuration files. You'll have to give
+it a directory where to put the configuration files, e.g.:
 
-      mustacci install /path/to/your/mustacci/config
+``` shell
+mustacci install ~/Mustacci
+```
 
-6. After configuring the generated files, seed the database
+You'll get these files:
 
-      bundle exec mustacci seed
+* `mustacci.rb`, where you do all of your configurations.
+* `Gemfile`, where you can add dependencies via [Bundler](http://gembundler.com/)
+* `Procfile`, where you can specify the processes to run, using [Foreman](http://ddollar.github.com/foreman/)
 
-6. Start Mustacci
+Have a look through those file and configure as needed/wanted.
 
-      bundle exec mustacci start
+When you've configured it to your liking, setup the database:
 
-## Configuration
+``` shell
+mustacci setup
+```
 
-The `mustacci install` command generated a configuration file.
-Loot into that for
+Then you can start Mustacci:
+
+``` shell
+foreman start
+```
+
 
 ## The build process
 
@@ -62,16 +72,39 @@ repository. You need to create an executable file called `.mustacci` in the
 root of your repository. This file needs to do pretty much everything on its
 own: install dependencies, create and migrate the database, etc.
 
+The `.mustacci` file must be executable and don't forget the hashbang at the top.
+
+For example:
+
+``` shell
+#!/usr/bin/env bash
+set -e
+export RAILS_ENV=test
+gem install bundler
+bundle install
+rake db:create
+rake db:migrate
+rspec -fp
+```
+
 If no `.mustacci` is found, it will try to run `rake`. No guarantees though.
 
-## Development installation OSX
+## Development
 
-Installing ZeroMQ and CouchDB is easy:
+After cloning, run `bundle install`, then install the application:
 
-    brew install zmq couchdb
+``` shell
+bundle exec mustacci install dev
+```
 
-Then you can send a dummy post receive hook:
+Then edit the `Gemfile` and let the mustacci gem point to your local setup:
 
-    curl -d "payload=`cat test/payload.json`" http://localhost:8081/github
+``` ruby
+gem 'mustacci', :path => '../mustacci'
+```
 
-Edit `test/payload.json` to try some different kinds of payloads.
+There is a dummy github payload you can use to test the github listener:
+
+``` shell
+curl -d "payload=`cat test/payload.json`" http://localhost:8081/github
+```

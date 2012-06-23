@@ -1,13 +1,10 @@
 require 'mustacci'
 require 'thor'
-require 'fileutils'
 ENV['RACK_ENV'] = 'production'
 
 module Mustacci
   class CLI < Thor
     include Thor::Actions
-
-    class_option :directory, :default => nil, :desc => "The directory that the configuration lives in"
 
     def self.source_root
       File.expand_path('../../../templates', __FILE__)
@@ -16,16 +13,10 @@ module Mustacci
     desc "install DIRECTORY", "Generates the Mustacci configuration"
     def install(directory)
       self.destination_root = directory
-      copy_file "config.rb"
+      say "Installing Mustacci in #{File.expand_path(directory)}", :yellow
+      copy_file "mustacci.rb"
       copy_file "Gemfile"
-    end
-
-    desc "start", "Starts up Mustacci servers"
-    def start
-      require 'foreman'
-      require 'foreman/cli'
-      procfile = File.expand_path("../procfile.yml", __FILE__)
-      Foreman::CLI.start(["start", "--procfile", procfile, "--app-root", directory])
+      copy_file "Procfile"
     end
 
     desc "github", "Starts just the Github push notification listener"
@@ -56,9 +47,9 @@ module Mustacci
       Builder.run!(id)
     end
 
-    desc "seed", "Creates the views in the database"
-    def seed
-      if yes?("This will erase all data from the database. Are you sure?")
+    desc "setup", "Creates the views in the database"
+    def setup
+      if yes? "This will erase all data from the database. Are you sure?"
         require 'mustacci/seed'
         load_configuration!
         Seed.call
@@ -68,12 +59,12 @@ module Mustacci
     private
 
     def load_configuration!
-      config_file = File.join(directory, "config.rb")
+      config_file = File.join(directory, "mustacci.rb")
       load config_file if File.exist?(config_file)
     end
 
     def directory
-      options.directory || Dir.pwd
+      Dir.pwd
     end
 
   end
