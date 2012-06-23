@@ -1,0 +1,6 @@
+source "http://rubygems.org"
+
+gem 'mustacci', <%= options.development? ? ":path => '#{Dir.pwd}'" : "'~> #{Mustacci::VERSION}'" %>
+
+# Add Campfire support
+# gem 'blaze'

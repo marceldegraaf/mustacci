@@ -55,7 +55,7 @@ module Mustacci
     end
 
     def socket
-      @socket ||= URI.parse("http://#{configuration.hostname}:#{configuration.frontend_port}/faye")
+      @socket ||= URI.parse("http://localhost:#{configuration.frontend_port}/faye")
     end
 
     def reset_timer

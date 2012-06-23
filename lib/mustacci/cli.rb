@@ -7,10 +7,11 @@ module Mustacci
     include Thor::Actions
 
     def self.source_root
-      File.expand_path('../../../templates', __FILE__)
+      File.expand_path('../templates', __FILE__)
     end
 
     desc "install DIRECTORY", "Generates the Mustacci configuration"
+    method_options :development => false
     def install(directory)
       self.destination_root = directory
       say "Installing Mustacci in #{destination_root}", :yellow

@@ -63,7 +63,7 @@ module Mustacci
     end
 
     def path
-      "tmp/workspace/#{payload.repository.name}"
+      File.join(Mustacci.configuration.workspace, payload.repository.name)
     end
 
     def sha

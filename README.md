@@ -91,16 +91,11 @@ If no `.mustacci` is found, it will try to run `rake`. No guarantees though.
 
 ## Development
 
-After cloning, run `bundle install`, then install the application:
+After cloning, run `bundle install`, then install the application with the
+`--development` option:
 
 ``` shell
-bundle exec mustacci install dev
-```
-
-Then edit the `Gemfile` and let the mustacci gem point to your local setup:
-
-``` ruby
-gem 'mustacci', :path => '../mustacci'
+bundle exec mustacci install dev --development
 ```
 
 There is a dummy github payload you can use to test the github listener:

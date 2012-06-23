@@ -31,9 +31,6 @@ module Mustacci
     # Where the ZeroMQ connects to. Defaults to "tcp://127.0.0.1:9001"
     attr_accessor :queue
 
-    # The hostname of Mustacci
-    attr_accessor :hostname
-
     # The path where your projects will be built:
     attr_accessor :workspace
 

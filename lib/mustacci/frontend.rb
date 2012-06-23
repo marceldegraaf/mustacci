@@ -21,12 +21,10 @@ module Mustacci
     Faye::WebSocket.load_adapter 'thin'
     use Faye::RackAdapter, mount: '/faye'
 
-    set :root,           File.expand_path('../../../', __FILE__)
-    set :views,          'views'
-    set :public_folder,  'public'
+    set :root, File.expand_path('../../../frontend', __FILE__)
 
     configure do
-      Compass.add_project_configuration(File.join(settings.root, 'config', 'compass.rb'))
+      Compass.add_project_configuration(File.join(settings.root, 'compass.rb'))
     end
 
     helpers do
@@ -48,14 +46,14 @@ module Mustacci
         slim :_faye_channel, layout: false, locals: { channel_id: channel_id }
       end
 
-      def faye_uri
-        "http://#{settings.mustacci.hostname}:#{settings.mustacci.frontend_port}/faye"
-      end
-
     end
 
     error do
-      "<p>HALP! The shit hit the fan in such a way that I don't know what to do. The error message:<br><br>" + request.env['sinatra.error'].message + "</p>"
+      <<-HTML
+        <h1>HALP!</h1>
+        <p>The shit hit the fan in such a way that I don't know what to do.</p>
+        <p>The error message: #{request.env['sinatra.error'].message}</p>
+      HTML
     end
 
     get '/' do

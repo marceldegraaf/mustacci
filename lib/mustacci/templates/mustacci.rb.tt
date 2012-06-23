@@ -3,9 +3,6 @@ Mustacci.configure do |config|
   # Define the workspace path (required):
   config.workspace = <%= @workspace.inspect %>
 
-  # Set the hostname of your Mustacci server (required):
-  config.hostname = <%= @hostname.inspect %>
-
   # Define what you want to do when the build ran.
   # You'll be passed the build that just completed.
   #

@@ -1,5 +1,5 @@
 javascript:
-  var client = new Faye.Client("#{{faye_uri}}");
+  var client = new Faye.Client("/faye");
   var channel = [ '/build', "#{channel_id}" ].join('/');
 
   var subscription = client.subscribe(channel, function(message) {
