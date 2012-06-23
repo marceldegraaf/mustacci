@@ -13,10 +13,18 @@ module Mustacci
     desc "install DIRECTORY", "Generates the Mustacci configuration"
     def install(directory)
       self.destination_root = directory
-      say "Installing Mustacci in #{File.expand_path(directory)}", :yellow
-      copy_file "mustacci.rb"
-      copy_file "Gemfile"
-      copy_file "Procfile"
+      say "Installing Mustacci in #{destination_root}", :yellow
+
+      require 'securerandom'
+      @password = SecureRandom.hex(16)
+      @username = `whoami`.strip
+      @hostname = `hostname`.strip
+      @workspace = File.join(destination_root, 'workspace')
+      @configuration = Mustacci.configuration
+
+      template "mustacci.rb.tt"
+      template "Gemfile.tt"
+      template "Procfile.tt"
     end
 
     desc "github", "Starts just the Github push notification listener"

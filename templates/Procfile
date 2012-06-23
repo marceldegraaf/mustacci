@@ -1,3 +1,0 @@
-github: bundle exec mustacci github
-worker: bundle exec mustacci worker
-frontend: bundle exec mustacci frontend

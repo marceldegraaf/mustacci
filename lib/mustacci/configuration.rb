@@ -28,11 +28,14 @@ module Mustacci
     # The port on which the frontend will listen. Defaults to 8080.
     attr_accessor :frontend_port
 
-    # Where the 0MQ connects to. Defaults to "tcp://127.0.0.1:9000"
+    # Where the ZeroMQ connects to. Defaults to "tcp://127.0.0.1:9001"
     attr_accessor :queue
 
     # The hostname of Mustacci
     attr_accessor :hostname
+
+    # The path where your projects will be built:
+    attr_accessor :workspace
 
     # Specify a block to determine what should happen on a successful build.
     #
@@ -42,7 +45,7 @@ module Mustacci
     #
     #   Mustacci.configure do |config|
     #     config.on_success do |build|
-    #       mail build.author
+    #       # do something interesting here
     #     end
     #   end
     def on_success(&block)
@@ -57,15 +60,12 @@ module Mustacci
     #
     #   Mustacci.configure do |config|
     #     config.on_failed do |build|
-    #       mail build.author
+    #       # do something interesting here
     #     end
     #   end
     def on_failed(&block)
       failed_callbacks << block
     end
-
-    # How many workers do you want? Defaults to 1.
-    attr_accessor :workers
 
     # Change the logger. Defaults to $stderr
     #
@@ -83,15 +83,12 @@ module Mustacci
     def initialize
       @frontend_port     = 8080
       @github_port       = 8081
-      @on_success        = Proc.new { }
-      @on_failed         = Proc.new { }
-      @workers           = 1
       @logger            = Logger.new($stderr)
       @queue             = "tcp://127.0.0.1:9001"
       @success_callbacks = []
       @failed_callbacks  = []
       @couchdb           = "http://127.0.0.1:5984/mustacci"
-      @hostname = "localhost"
+      @hostname          = "localhost"
     end
 
     # Sets the github username and password

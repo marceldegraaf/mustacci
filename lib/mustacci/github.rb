@@ -33,12 +33,10 @@ module Mustacci
     end
 
     def outbound
-      @outbound ||= begin
-                      context = ZMQ::Context.new(1)
-                      outbound = context.socket(ZMQ::DOWNSTREAM)
-                      outbound.connect settings.mustacci.queue
-                      outbound
-                    end
+      context = ZMQ::Context.new(1)
+      outbound = context.socket(ZMQ::DOWNSTREAM)
+      outbound.connect settings.mustacci.queue
+      outbound
     end
 
   end

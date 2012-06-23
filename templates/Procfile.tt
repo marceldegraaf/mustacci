@@ -1,0 +1,6 @@
+github: bundle exec mustacci github
+worker: bundle exec mustacci worker
+frontend: bundle exec mustacci frontend
+
+# optional: start up CouchDB, if you don't have it running as a daemon
+# db: couchdb -e tmp/couchdb.stderr -o tmp/couchdb.stdout
