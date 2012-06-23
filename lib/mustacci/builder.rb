@@ -105,18 +105,24 @@ module Mustacci
     end
 
     def handle_failed_build(error)
-      $stderr.puts "\e[31m#{error}\e[0m"
+      fatal error
       in_repo { create_fail_note }
     rescue BuildFailed => error
-      $stderr.puts "\e[31mEven handling failed build failed.\e[0m"
+      fatal "Even handling failed build failed."
     ensure
-      # exe "./script/failed #{ARGV.join(" ")}"
+      log "Running callbacks for failed builds"
+      Mustacci.configuration.failed_callbacks.each { |cb| cb.call(build) }
       exit 1
     end
 
     def handle_success_build
       build.success!
-      # exe "./script/success #{ARGV.join(" ")}"
+      log "Running callbacks for successful builds"
+      Mustacci.configuration.success_callbacks.each { |cb| cb.call(build) }
+    end
+
+    def fatal(message)
+      $stderr.puts "\e[31m[#{now}] #{message}\e[0m"
     end
 
     def now
