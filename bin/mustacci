@@ -1,6 +1,0 @@
-#!/usr/bin/env ruby
-
-require 'mustacci'
-require 'mustacci/cli'
-
-Mustacci::CLI.start(ARGV)
